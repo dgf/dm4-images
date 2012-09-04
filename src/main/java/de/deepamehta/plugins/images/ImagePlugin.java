@@ -1,9 +1,10 @@
 package de.deepamehta.plugins.images;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -21,6 +22,7 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
+import de.deepamehta.core.ResultSet;
 import de.deepamehta.core.osgi.PluginActivator;
 import de.deepamehta.core.service.PluginService;
 import de.deepamehta.core.service.listener.PluginServiceArrivedListener;
@@ -32,6 +34,9 @@ import de.deepamehta.plugins.files.StoredFile;
 import de.deepamehta.plugins.files.UploadedFile;
 import de.deepamehta.plugins.files.service.FilesService;
 
+/**
+ * CKEditor compatible resources for image upload and browse.
+ */
 @Path("/images")
 public class ImagePlugin extends PluginActivator implements PluginServiceArrivedListener,
         PluginServiceGoneListener {
@@ -42,54 +47,62 @@ public class ImagePlugin extends PluginActivator implements PluginServiceArrived
 
     private FilesService fileService;
 
+    @Context
+    private UriInfo uriInfo;
+
     /**
      * CKEditor image upload integration, see
      * CKEDITOR.config.filebrowserImageBrowseUrl
      * 
-     * @return a JavaScript snippet that calls CKEditor
+     * @param image
+     *            Uploaded file resource.
+     * @param func
+     *            CKEDITOR function number to call.
+     * @return JavaScript snippet that calls CKEditor
      */
     @POST
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_HTML)
-    public String upload(UploadedFile image, @QueryParam("CKEditorFuncNum") Long func,
-            @Context UriInfo uriInfo) {
+    public String upload(UploadedFile image, @QueryParam("CKEditorFuncNum") Long func) {
         log.info("upload image " + image.getName());
         try {
             StoredFile file = fileService.storeFile(image, IMAGES);
+            // TODO introduce bean getter for file name
             String fileName = file.toJSON().getString("file_name");
-            String url = uriInfo.getBaseUri() + "filerepo/" + IMAGES + "/" + fileName;
-            return getCkEditorCall(func, url, "");
+            return getCkEditorCall(func, getRepoUri("/" + IMAGES + "/" + fileName), "");
         } catch (Exception e) {
             return getCkEditorCall(func, "", e.getMessage());
         }
     }
 
     /**
-     * Returns a collection of all image source URLs.
+     * Returns a set of all image source URLs.
      * 
      * @return all image sources
      */
     @GET
     @Path("/browse")
     @Produces(MediaType.APPLICATION_JSON)
-    public Collection<Image> browse(@Context UriInfo uriInfo) {
+    public ResultSet<Image> browse() {
         log.info("browse images");
         try {
-            List<Image> images = new ArrayList<Image>();
+            Set<Image> images = new HashSet<Image>();
             for (JSONObject image : getImages()) {
                 String path = image.getString("path");
-                String src = uriInfo.getBaseUri() + "filerepo" + path;
-                images.add(new Image(src));
+                images.add(new Image(getRepoUri(path)));
             }
-            return images;
+            return new ResultSet<Image>(images.size(), images);
         } catch (WebApplicationException e) { // fileService.getDirectoryListing
-            throw e;
+            throw e; // do not wrap it again
         } catch (Exception e) {
             throw new WebApplicationException(e);
         }
     }
 
+    /**
+     * Nullify file service reference.
+     */
     @Override
     public void pluginServiceGone(PluginService service) {
         if (service == fileService) {
@@ -130,22 +143,46 @@ public class ImagePlugin extends PluginActivator implements PluginServiceArrived
         }
     }
 
+    /**
+     * Returns a in-line JavaScript snippet that calls the parent CKEditor.
+     * 
+     * @param func
+     *            CKEDITOR function number.
+     * @param uri
+     *            Resource URI.
+     * @param error
+     *            Error message.
+     * @return JavaScript snippet that calls CKEditor
+     */
     private String getCkEditorCall(Long func, String uri, String error) {
         return "<script type='text/javascript'>" + "window.parent.CKEDITOR.tools.callFunction("
                 + func + ", '" + uri + "', '" + error + "')" + "</script>";
     }
 
     /**
-     * Returns the directory listing of images.
+     * Returns the directory listing of all images.
      * 
-     * @return images
+     * @return all images
      * @throws JSONException
      */
     @SuppressWarnings("unchecked")
     private Collection<JSONObject> getImages() throws JSONException {
         DirectoryListing files = fileService.getDirectoryListing(IMAGES);
+        // TODO introduce bean getter for file items
         JSONArray jsonArray = files.toJSON().getJSONArray("items");
-        List<JSONObject> list = DeepaMehtaUtils.toList(jsonArray);
-        return list;
+        // TODO implement utilities support of generic type parameterized calls
+        return (List<JSONObject>) DeepaMehtaUtils.toList(jsonArray);
+    }
+
+    /**
+     * Returns an external accessible file repository URI of path based on
+     * actual request URI.
+     * 
+     * @param path
+     *            Relative path of a file repository resource.
+     * @return URI
+     */
+    private String getRepoUri(String path) {
+        return uriInfo.getBaseUri() + "filerepo" + path;
     }
 }

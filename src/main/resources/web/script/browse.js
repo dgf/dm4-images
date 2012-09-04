@@ -10,7 +10,7 @@
 
     $(function() {
         var funcNum = getUrlParam('CKEditorFuncNum'),
-            images = dm4c.restc.request('GET', '/images/browse'),
+            images = dm4c.restc.request('GET', '/images/browse').items,
             $body = $(document.body)
 
         $.each(images, function (i, image) {
@@ -22,5 +22,5 @@
             window.close()
         })
     })
-// hint: do not use the opener jQuery instance
+// hint: do not use or modify the opener jQuery instance
 }(jQuery, window.opener.dm4c, window.opener.CKEDITOR))
