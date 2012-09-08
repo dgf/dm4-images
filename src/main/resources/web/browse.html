@@ -1,10 +1,33 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>DeepaMehta Image Browser</title>
-        <script src="/de.deepamehta.webclient/script/vendor/jquery/jquery-1.7.2.min.js"></script>
-        <script src="/de.deepamehta.images/script/browse.js"></script>
-    </head>
-    <body>
-    </body>
+<head>
+<title>DeepaMehta Image Browser</title>
+<script type="text/javascript">
+// CKEditor image browse integration, see CKEDITOR.config.filebrowserImageBrowseUrl
+
+function showImages($, dm4c, ck) {
+    var funcNum = getUrlParam('CKEditorFuncNum'),
+        images = dm4c.restc.request('GET', '/images/browse').items,
+        $body = $(document.body)
+
+    $.each(images, function(i, image) {
+        $body.append($('<img>').attr('src', image.src))
+    })
+
+    $body.on('click', 'img', function() {
+        ck.tools.callFunction(funcNum, $(this).attr('src'))
+        window.close()
+    })
+}
+
+// TODO js_utils should include this method
+function getUrlParam(param) {
+    var regex = new RegExp('(?:[\?&]|&amp;)' + param + '=([^&]+)', 'i'),
+        match = window.location.search.match(regex)
+    return (match && match.length > 1) ? match[1] : ''
+}
+</script>
+</head>
+<body onload="showImages(window.opener.jQuery, window.opener.dm4c, window.opener.CKEDITOR)">
+</body>
 </html>
