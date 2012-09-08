@@ -7,18 +7,39 @@ import de.deepamehta.core.JSONEnabled;
 
 public class Image implements JSONEnabled {
 
-    private JSONObject image = new JSONObject();
+    private final Long size;
 
-    public Image(String src) {
-        try {
-            image.put("src", src);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+    private final String src;
+
+    private final String type;
+
+    public Image(String src, String mediaType, Long size) {
+        this.size = size;
+        this.src = src;
+        this.type = mediaType;
+    }
+
+    public Long getSize() {
+        return size;
+    }
+
+    public String getSrc() {
+        return src;
+    }
+
+    public String getType() {
+        return type;
     }
 
     @Override
     public JSONObject toJSON() {
+        JSONObject image = new JSONObject();
+        try {
+            image.put("src", src);
+            image.put("type", type);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
         return image;
     }
 

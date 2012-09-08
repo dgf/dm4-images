@@ -1,9 +1,7 @@
 package de.deepamehta.plugins.images;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -18,17 +16,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
 import de.deepamehta.core.ResultSet;
 import de.deepamehta.core.osgi.PluginActivator;
 import de.deepamehta.core.service.PluginService;
 import de.deepamehta.core.service.listener.PluginServiceArrivedListener;
 import de.deepamehta.core.service.listener.PluginServiceGoneListener;
-import de.deepamehta.core.util.DeepaMehtaUtils;
-import de.deepamehta.plugins.files.DirectoryListing;
+import de.deepamehta.plugins.files.FileItem;
+import de.deepamehta.plugins.files.ItemKind;
 import de.deepamehta.plugins.files.ResourceInfo;
 import de.deepamehta.plugins.files.StoredFile;
 import de.deepamehta.plugins.files.UploadedFile;
@@ -43,7 +37,9 @@ public class ImagePlugin extends PluginActivator implements PluginServiceArrived
 
     public static final String IMAGES = "images";
 
-    private Logger log = Logger.getLogger(getClass().getName());
+    private static final String FILE_REPOSITORY_PATH = System.getProperty("dm4.filerepo.path");
+
+    private static Logger log = Logger.getLogger(ImagePlugin.class.getName());
 
     private FilesService fileService;
 
@@ -68,9 +64,8 @@ public class ImagePlugin extends PluginActivator implements PluginServiceArrived
         log.info("upload image " + image.getName());
         try {
             StoredFile file = fileService.storeFile(image, IMAGES);
-            // TODO introduce bean getter for file name
-            String fileName = file.toJSON().getString("file_name");
-            return getCkEditorCall(func, getRepoUri("/" + IMAGES + "/" + fileName), "");
+            String path = "/" + IMAGES + "/" + file.getFileName();
+            return getCkEditorCall(func, getRepoUri(path), "");
         } catch (Exception e) {
             return getCkEditorCall(func, "", e.getMessage());
         }
@@ -88,9 +83,9 @@ public class ImagePlugin extends PluginActivator implements PluginServiceArrived
         log.info("browse images");
         try {
             Set<Image> images = new HashSet<Image>();
-            for (JSONObject image : getImages()) {
-                String path = image.getString("path");
-                images.add(new Image(getRepoUri(path)));
+            for (FileItem image : fileService.getDirectoryListing(IMAGES).getFileItems()) {
+                String src = getRepoUri(image.getPath());
+                images.add(new Image(src, image.getMediaType(), image.getSize()));
             }
             return new ResultSet<Image>(images.size(), images);
         } catch (WebApplicationException e) { // fileService.getDirectoryListing
@@ -122,11 +117,9 @@ public class ImagePlugin extends PluginActivator implements PluginServiceArrived
             try {
                 // check image file repository
                 ResourceInfo resourceInfo = fileService.getResourceInfo(IMAGES);
-                String kind = resourceInfo.toJSON().getString("kind");
-                if (kind.equals("directory") == false) {
-                    String repoPath = System.getProperty("dm4.filerepo.path");
-                    String message = "image storage directory " + repoPath + File.separator
-                            + IMAGES + " can not be used";
+                if (resourceInfo.getItemKind() != ItemKind.DIRECTORY) {
+                    String message = "image storage directory " + FILE_REPOSITORY_PATH
+                            + File.separator + IMAGES + " can not be used";
                     throw new IllegalStateException(message);
                 }
             } catch (WebApplicationException e) {
@@ -157,21 +150,6 @@ public class ImagePlugin extends PluginActivator implements PluginServiceArrived
     private String getCkEditorCall(Long func, String uri, String error) {
         return "<script type='text/javascript'>" + "window.parent.CKEDITOR.tools.callFunction("
                 + func + ", '" + uri + "', '" + error + "')" + "</script>";
-    }
-
-    /**
-     * Returns the directory listing of all images.
-     * 
-     * @return all images
-     * @throws JSONException
-     */
-    @SuppressWarnings("unchecked")
-    private Collection<JSONObject> getImages() throws JSONException {
-        DirectoryListing files = fileService.getDirectoryListing(IMAGES);
-        // TODO introduce bean getter for file items
-        JSONArray jsonArray = files.toJSON().getJSONArray("items");
-        // TODO implement utilities support of generic type parameterized calls
-        return (List<JSONObject>) DeepaMehtaUtils.toList(jsonArray);
     }
 
     /**
