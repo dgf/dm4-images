@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -18,9 +19,10 @@ import javax.ws.rs.core.UriInfo;
 
 import de.deepamehta.core.ResultSet;
 import de.deepamehta.core.osgi.PluginActivator;
+import de.deepamehta.core.service.ClientState;
 import de.deepamehta.core.service.PluginService;
-import de.deepamehta.core.service.listener.PluginServiceArrivedListener;
-import de.deepamehta.core.service.listener.PluginServiceGoneListener;
+import de.deepamehta.core.service.event.PluginServiceArrivedListener;
+import de.deepamehta.core.service.event.PluginServiceGoneListener;
 import de.deepamehta.plugins.files.DirectoryListing.FileItem;
 import de.deepamehta.plugins.files.ItemKind;
 import de.deepamehta.plugins.files.ResourceInfo;
@@ -32,7 +34,8 @@ import de.deepamehta.plugins.files.service.FilesService;
  * CKEditor compatible resources for image upload and browse.
  */
 @Path("/images")
-public class ImagePlugin extends PluginActivator implements PluginServiceArrivedListener,
+public class ImagePlugin extends PluginActivator implements //
+        PluginServiceArrivedListener,//
         PluginServiceGoneListener {
 
     public static final String IMAGES = "images";
@@ -54,16 +57,21 @@ public class ImagePlugin extends PluginActivator implements PluginServiceArrived
      *            Uploaded file resource.
      * @param func
      *            CKEDITOR function number to call.
+     * @param cookie
+     *            Actual cookie.
      * @return JavaScript snippet that calls CKEditor
      */
     @POST
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_HTML)
-    public String upload(UploadedFile image, @QueryParam("CKEditorFuncNum") Long func) {
+    public String upload(//
+            UploadedFile image,//
+            @QueryParam("CKEditorFuncNum") Long func,//
+            @HeaderParam("Cookie") ClientState cookie) {
         log.info("upload image " + image.getName());
         try {
-            StoredFile file = fileService.storeFile(image, IMAGES);
+            StoredFile file = fileService.storeFile(image, IMAGES, cookie);
             String path = "/" + IMAGES + "/" + file.getFileName();
             return getCkEditorCall(func, getRepoUri(path), "");
         } catch (Exception e) {
@@ -113,26 +121,30 @@ public class ImagePlugin extends PluginActivator implements PluginServiceArrived
         if (service instanceof FilesService) {
             log.fine("file service arrived");
             fileService = (FilesService) service;
-            // TODO move the initialization to migration "0"
-            try {
-                // check image file repository
-                ResourceInfo resourceInfo = fileService.getResourceInfo(IMAGES);
-                if (resourceInfo.getItemKind() != ItemKind.DIRECTORY) {
-                    String message = "image storage directory " + FILE_REPOSITORY_PATH
-                            + File.separator + IMAGES + " can not be used";
-                    throw new IllegalStateException(message);
-                }
-            } catch (WebApplicationException e) {
-                // catch fileService info request error
-                if (e.getResponse().getStatus() != 404) {
-                    throw e;
-                } else {
-                    log.info("create image directory");
-                    fileService.createFolder(IMAGES, "/");
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            postInstallMigration();
+        }
+    }
+
+    private void postInstallMigration() {
+        // TODO move the initialization to migration "0"
+        try {
+            // check image file repository
+            ResourceInfo resourceInfo = fileService.getResourceInfo(IMAGES);
+            if (resourceInfo.getItemKind() != ItemKind.DIRECTORY) {
+                String message = "image storage directory " + FILE_REPOSITORY_PATH
+                        + File.separator + IMAGES + " can not be used";
+                throw new IllegalStateException(message);
             }
+        } catch (WebApplicationException e) {
+            // catch fileService info request error
+            if (e.getResponse().getStatus() != 404) {
+                throw e;
+            } else {
+                log.info("create image directory");
+                fileService.createFolder(IMAGES, "/");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
