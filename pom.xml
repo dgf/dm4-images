@@ -12,25 +12,15 @@
 
     <parent>
         <groupId>de.deepamehta</groupId>
-        <artifactId>deepamehta-parent</artifactId>
-        <version>3</version>
-        <relativePath>../dm4-parent/pom.xml</relativePath>
+        <artifactId>deepamehta-plugin-parent</artifactId>
+        <version>4.0.13-SNAPSHOT</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>de.deepamehta</groupId>
-            <artifactId>deepamehta-core</artifactId>
-            <version>4.0.12-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>de.deepamehta</groupId>
             <artifactId>deepamehta-files</artifactId>
-            <version>4.0.12-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <version>4.0.13-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
