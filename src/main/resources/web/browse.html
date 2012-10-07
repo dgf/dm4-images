@@ -7,7 +7,7 @@
 
 function showImages($, dm4c, ck) {
     var funcNum = getUrlParam('CKEditorFuncNum'),
-        images = dm4c.restc.request('GET', '/images/browse').items,
+        images = dm4c.restc.request('GET', 'images/browse').items,
         $body = $(document.body)
 
     $.each(images, function(i, image) {
