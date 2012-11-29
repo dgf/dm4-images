@@ -21,8 +21,7 @@ import de.deepamehta.core.ResultSet;
 import de.deepamehta.core.osgi.PluginActivator;
 import de.deepamehta.core.service.ClientState;
 import de.deepamehta.core.service.PluginService;
-import de.deepamehta.core.service.event.PluginServiceArrivedListener;
-import de.deepamehta.core.service.event.PluginServiceGoneListener;
+import de.deepamehta.core.service.annotation.ConsumesService;
 import de.deepamehta.plugins.files.DirectoryListing.FileItem;
 import de.deepamehta.plugins.files.ItemKind;
 import de.deepamehta.plugins.files.ResourceInfo;
@@ -34,9 +33,7 @@ import de.deepamehta.plugins.files.service.FilesService;
  * CKEditor compatible resources for image upload and browse.
  */
 @Path("/images")
-public class ImagePlugin extends PluginActivator implements //
-        PluginServiceArrivedListener,//
-        PluginServiceGoneListener {
+public class ImagePlugin extends PluginActivator {
 
     public static final String IMAGES = "images";
 
@@ -107,7 +104,7 @@ public class ImagePlugin extends PluginActivator implements //
      * Nullify file service reference.
      */
     @Override
-    public void pluginServiceGone(PluginService service) {
+    public void serviceGone(PluginService service) {
         if (service == fileService) {
             fileService = null;
         }
@@ -117,7 +114,8 @@ public class ImagePlugin extends PluginActivator implements //
      * Reference the file service and create the repository path if necessary.
      */
     @Override
-    public void pluginServiceArrived(PluginService service) {
+    @ConsumesService("de.deepamehta.plugins.files.service.FilesService")
+    public void serviceArrived(PluginService service) {
         if (service instanceof FilesService) {
             log.fine("file service arrived");
             fileService = (FilesService) service;
@@ -131,8 +129,8 @@ public class ImagePlugin extends PluginActivator implements //
             // check image file repository
             ResourceInfo resourceInfo = fileService.getResourceInfo(IMAGES);
             if (resourceInfo.getItemKind() != ItemKind.DIRECTORY) {
-                String message = "image storage directory " + FILE_REPOSITORY_PATH
-                        + File.separator + IMAGES + " can not be used";
+                String message = "image storage directory " + FILE_REPOSITORY_PATH + File.separator
+                        + IMAGES + " can not be used";
                 throw new IllegalStateException(message);
             }
         } catch (WebApplicationException e) {
