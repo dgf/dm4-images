@@ -11,9 +11,9 @@ img {
 <script type="text/javascript">
 // CKEditor image browse integration, see CKEDITOR.config.filebrowserImageBrowseUrl
 
-function showImages($, dm4c, ck) {
+function showImages($, dmc, ck) {
     var funcNum = getUrlParam('CKEditorFuncNum'),
-        images = dm4c.restc.request('GET', '/images/browse').items,
+        images = dmc.request('GET', '/images/browse').items,
         $body = $(document.body)
 
     $.each(images, function(i, image) {
@@ -34,6 +34,6 @@ function getUrlParam(param) {
 }
 </script>
 </head>
-<body onload="showImages(window.opener.jQuery, window.opener.dm4c, window.opener.CKEDITOR)">
+<body onload="showImages(window.opener.jQuery, window.opener.dmc, window.opener.CKEDITOR)">
 </body>
 </html>
