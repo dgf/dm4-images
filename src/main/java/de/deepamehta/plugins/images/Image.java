@@ -13,10 +13,13 @@ public class Image implements JSONEnabled {
 
     private final String type;
 
-    public Image(String src, String mediaType, Long size) {
+    private final String name;
+
+    public Image(String src, String mediaType, Long size, String fileName) {
         this.size = size;
         this.src = src;
         this.type = mediaType;
+        this.name = fileName;
     }
 
     public Long getSize() {
@@ -27,6 +30,10 @@ public class Image implements JSONEnabled {
         return src;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public String getType() {
         return type;
     }
@@ -35,6 +42,7 @@ public class Image implements JSONEnabled {
     public JSONObject toJSON() {
         JSONObject image = new JSONObject();
         try {
+            image.put("name", name);
             image.put("src", src);
             image.put("type", type);
         } catch (JSONException e) {

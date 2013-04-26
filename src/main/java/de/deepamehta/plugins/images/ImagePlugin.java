@@ -49,7 +49,7 @@ public class ImagePlugin extends PluginActivator {
     /**
      * CKEditor image upload integration, see
      * CKEDITOR.config.filebrowserImageBrowseUrl
-     * 
+     *
      * @param image
      *            Uploaded file resource.
      * @param func
@@ -78,7 +78,7 @@ public class ImagePlugin extends PluginActivator {
 
     /**
      * Returns a set of all image source URLs.
-     * 
+     *
      * @return all image sources
      */
     @GET
@@ -90,7 +90,8 @@ public class ImagePlugin extends PluginActivator {
             Set<Image> images = new HashSet<Image>();
             for (FileItem image : fileService.getDirectoryListing(IMAGES).getFileItems()) {
                 String src = getRepoUri(image.getPath());
-                images.add(new Image(src, image.getMediaType(), image.getSize()));
+                String fileName = image.getName();
+                images.add(new Image(src, image.getMediaType(), image.getSize(), fileName));
             }
             return new ResultSet<Image>(images.size(), images);
         } catch (WebApplicationException e) { // fileService.getDirectoryListing
@@ -148,7 +149,7 @@ public class ImagePlugin extends PluginActivator {
 
     /**
      * Returns a in-line JavaScript snippet that calls the parent CKEditor.
-     * 
+     *
      * @param func
      *            CKEDITOR function number.
      * @param uri
@@ -165,7 +166,7 @@ public class ImagePlugin extends PluginActivator {
     /**
      * Returns an external accessible file repository URI of path based on
      * actual request URI.
-     * 
+     *
      * @param path
      *            Relative path of a file repository resource.
      * @return URI
