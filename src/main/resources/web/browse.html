@@ -18,10 +18,14 @@ function showImages($, dmc, ck) {
 
     $.each(images, function(i, image) {
         if (image.type.indexOf("application/pdf") != -1) {
-            $body.append($('<object>').attr('data', image.src).attr('type', 'application/pdf').html(
-                '<p>It appears you do not have a PDF plugin for this browser. No problem... you can '
-                + '<a href="' +image.src+ '">click here to download the ' +image.name+ '-file.</a></p>'
+            $wrapper = $('<div class="embed-wrapper" style="width: 400px;">')
+            $wrapper.append($('<object>').attr('data', image.src).attr('type', 'application/pdf').html(
+                '<p>It appears you do not have a PDF plugin for this browser.</p>'
             ))
+            $wrapper.append('<br/><a class="clicker" data="' +image.src+'" style="font-weight: bold;">'
+                + 'Click here to embed it</a> or you can '
+                + '<a href="' +image.src+ '">click here to download the ' +image.name+ '-file.</a>')
+            $body.append($wrapper)
         } else if (image.type.indexOf("image") != -1) {
             $body.append($('<img>').attr('src', image.src))
         }
@@ -33,6 +37,11 @@ function showImages($, dmc, ck) {
     })
 
     $body.on('click', 'object', function() {
+        ck.tools.callFunction(funcNum, $(this).attr('data'))
+        window.close()
+    })
+
+    $body.on('click', 'a.clicker', function() {
         ck.tools.callFunction(funcNum, $(this).attr('data'))
         window.close()
     })
