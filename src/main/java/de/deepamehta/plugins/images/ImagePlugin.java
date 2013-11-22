@@ -86,18 +86,12 @@ public class ImagePlugin extends PluginActivator {
     @Produces(MediaType.APPLICATION_JSON)
     public ResultSet<Image> browse() {
         log.info("browse images");
-        try {
-            Set<Image> images = new HashSet<Image>();
-            for (FileItem image : fileService.getDirectoryListing(IMAGES).getFileItems()) {
-                String src = getRepoUri(image.getPath());
-                images.add(new Image(src, image.getMediaType(), image.getSize()));
-            }
-            return new ResultSet<Image>(images.size(), images);
-        } catch (WebApplicationException e) { // fileService.getDirectoryListing
-            throw e; // do not wrap it again
-        } catch (Exception e) {
-            throw new WebApplicationException(e);
+        Set<Image> images = new HashSet<Image>();
+        for (FileItem image : fileService.getDirectoryListing(IMAGES).getFileItems()) {
+            String src = getRepoUri(image.getPath());
+            images.add(new Image(src, image.getMediaType(), image.getSize()));
         }
+        return new ResultSet<Image>(images.size(), images);
     }
 
     /**
@@ -141,8 +135,6 @@ public class ImagePlugin extends PluginActivator {
                 log.info("create image directory");
                 fileService.createFolder(IMAGES, "/");
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
