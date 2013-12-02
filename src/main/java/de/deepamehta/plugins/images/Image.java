@@ -1,4 +1,4 @@
-package de.deepamehta.plugins.images;
+ package de.deepamehta.plugins.images;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;

@@ -17,17 +17,21 @@ function showImages($, ck) {
         $body = $(document.body)
 
     $.each(images, function(i, image) {
-        if (image.type.indexOf("application/pdf") != -1) {
-            $wrapper = $('<div class="embed-wrapper" style="width: 400px;">')
-            $wrapper.append($('<object>').attr('data', image.src).attr('type', 'application/pdf').html(
-                '<p>It appears you do not have a PDF plugin for this browser.</p>'
-            ))
-            $wrapper.append('<br/><a class="clicker" data="' +image.src+'" style="font-weight: bold;">'
-                + 'Click here to embed it</a> or you can '
-                + '<a href="' +image.src+ '">click here to download the ' +image.name+ '-file.</a>')
-            $body.append($wrapper)
-        } else if (image.type.indexOf("image") != -1) {
-            $body.append($('<img>').attr('src', image.src))
+        if (typeof image.type !== 'undefined') {
+            if (image.type.indexOf("application/pdf") != -1) {
+                $wrapper = $('<div class="embed-wrapper" style="width: 400px;">')
+                var new_src = image.src.replace("http://localhost:8080", "")
+                $wrapper.append($('<object>').attr('data', new_src).attr('type', 'application/pdf').html(
+                    '<p>It appears you do not have a PDF plugin for this browser.</p>'
+                ))
+                $wrapper.append('<br/><a class="clicker" data="' +new_src+'" style="font-weight: bold;">'
+                    + 'Click here to embed it</a> or you can '
+                    + '<a href="' +new_src+ '">click here to download the ' +image.name+ '-file.</a>')
+                $body.append($wrapper)
+            } else if (image.type.indexOf("image") != -1) {
+                var new_src = image.src.replace("http://localhost:8080", "")
+                $body.append($('<img>').attr('src', new_src))
+            }
         }
     })
 
