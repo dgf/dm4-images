@@ -163,15 +163,7 @@ public class ImagePlugin extends PluginActivator {
                 + func + ", '" + uri + "', '" + error + "')" + "</script>";
     }
 
-    /**
-     * Returns an external accessible file repository URI of path based on
-     * actual request URI.
-     *
-     * @param path
-     *            Relative path of a file repository resource.
-     * @return URI
-     */
     private String getRepoUri(String path) {
-        return uriInfo.getBaseUri() + "filerepo" + path;
+        return "/filerepo" + path;
     }
 }
