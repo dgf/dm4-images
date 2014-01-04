@@ -21,3 +21,11 @@ this directory is also the base of the image browser that pops up after a click 
 
 ![browse server](https://github.com/dgf/dm4-images/raw/master/doc/browse.png)
 
+## Development
+
+clone this repo and install the plugin before starting the runner
+
+    git clone https://github.com/dgf/dm4-images
+    cd dm4-images
+    mvn install
+    mvn pax:run

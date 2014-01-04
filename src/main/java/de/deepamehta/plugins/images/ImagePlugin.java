@@ -1,8 +1,8 @@
 package de.deepamehta.plugins.images;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -17,10 +17,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import de.deepamehta.core.ResultSet;
 import de.deepamehta.core.osgi.PluginActivator;
 import de.deepamehta.core.service.ClientState;
 import de.deepamehta.core.service.PluginService;
+import de.deepamehta.core.service.ResultList;
 import de.deepamehta.core.service.annotation.ConsumesService;
 import de.deepamehta.plugins.files.DirectoryListing.FileItem;
 import de.deepamehta.plugins.files.ItemKind;
@@ -84,14 +84,14 @@ public class ImagePlugin extends PluginActivator {
     @GET
     @Path("/browse")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResultSet<Image> browse() {
+    public ResultList<Image> browse() {
         log.info("browse images");
-        Set<Image> images = new HashSet<Image>();
+        List<Image> images = new ArrayList<Image>();
         for (FileItem image : fileService.getDirectoryListing(IMAGES).getFileItems()) {
             String src = getRepoUri(image.getPath());
             images.add(new Image(src, image.getMediaType(), image.getSize()));
         }
-        return new ResultSet<Image>(images.size(), images);
+        return new ResultList<Image>(images.size(), images);
     }
 
     /**
