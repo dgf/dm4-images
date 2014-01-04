@@ -13,7 +13,7 @@ img {
 
 function showImages($, ck) {
     var funcNum = getUrlParam('CKEditorFuncNum'),
-        images = request($, 'GET', '/images/browse').items,
+        images = request($, 'GET', '/eduzen/images/browse').items,
         $body = $(document.body)
 
     $.each(images, function(i, image) {

@@ -33,7 +33,7 @@ import java.util.ArrayList;
 /**
  * CKEditor compatible resources for image upload and browse.
  */
-@Path("/images")
+@Path("/eduzen/images")
 public class ImagePlugin extends PluginActivator {
 
     public static final String IMAGES = "images";
