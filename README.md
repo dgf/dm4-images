@@ -4,7 +4,7 @@ Enables the browsing and upload of images while editing HTML content in [CKEdito
 
 ## Requirements
 
-  * [DeepaMehta 4](http://github.com/jri/deepamehta) 4.1.3
+  * [DeepaMehta 4](http://github.com/jri/deepamehta) 4.2
 
 ## Usage
 
