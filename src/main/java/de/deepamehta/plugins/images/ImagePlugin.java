@@ -17,10 +17,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import de.deepamehta.core.ResultSet;
 import de.deepamehta.core.osgi.PluginActivator;
 import de.deepamehta.core.service.ClientState;
 import de.deepamehta.core.service.PluginService;
-import de.deepamehta.core.service.ResultList;
 import de.deepamehta.core.service.annotation.ConsumesService;
 import de.deepamehta.plugins.files.DirectoryListing.FileItem;
 import de.deepamehta.plugins.files.ItemKind;
@@ -28,16 +28,14 @@ import de.deepamehta.plugins.files.ResourceInfo;
 import de.deepamehta.plugins.files.StoredFile;
 import de.deepamehta.plugins.files.UploadedFile;
 import de.deepamehta.plugins.files.service.FilesService;
-import java.util.ArrayList;
 
 /**
  * CKEditor compatible resources for image upload and browse.
  */
-@Path("/eduzen/images")
+@Path("/images")
 public class ImagePlugin extends PluginActivator {
 
     public static final String IMAGES = "images";
-    public static final String FILEREPO_BASE_URI = "/filerepo";
 
     private static final String FILE_REPOSITORY_PATH = System.getProperty("dm4.filerepo.path");
 
@@ -45,10 +43,13 @@ public class ImagePlugin extends PluginActivator {
 
     private FilesService fileService;
 
+    @Context
+    private UriInfo uriInfo;
+
     /**
      * CKEditor image upload integration, see
      * CKEDITOR.config.filebrowserImageBrowseUrl
-     *
+     * 
      * @param image
      *            Uploaded file resource.
      * @param func
@@ -77,22 +78,21 @@ public class ImagePlugin extends PluginActivator {
 
     /**
      * Returns a set of all image source URLs.
-     *
+     * 
      * @return all image sources
      */
     @GET
     @Path("/browse")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResultList<Image> browse() {
+    public ResultSet<Image> browse() {
         log.info("browse images");
         try {
-            ArrayList<Image> images = new ArrayList<Image>();
+            Set<Image> images = new HashSet<Image>();
             for (FileItem image : fileService.getDirectoryListing(IMAGES).getFileItems()) {
                 String src = getRepoUri(image.getPath());
-                String fileName = image.getName();
-                images.add(new Image(src, image.getMediaType(), image.getSize(), fileName));
+                images.add(new Image(src, image.getMediaType(), image.getSize()));
             }
-            return new ResultList<Image>(images.size(), images);
+            return new ResultSet<Image>(images.size(), images);
         } catch (WebApplicationException e) { // fileService.getDirectoryListing
             throw e; // do not wrap it again
         } catch (Exception e) {
@@ -148,7 +148,7 @@ public class ImagePlugin extends PluginActivator {
 
     /**
      * Returns a in-line JavaScript snippet that calls the parent CKEditor.
-     *
+     * 
      * @param func
      *            CKEDITOR function number.
      * @param uri
@@ -162,7 +162,15 @@ public class ImagePlugin extends PluginActivator {
                 + func + ", '" + uri + "', '" + error + "')" + "</script>";
     }
 
+    /**
+     * Returns an external accessible file repository URI of path based on
+     * actual request URI.
+     * 
+     * @param path
+     *            Relative path of a file repository resource.
+     * @return URI
+     */
     private String getRepoUri(String path) {
-        return FILEREPO_BASE_URI + path;
+        return uriInfo.getBaseUri() + "filerepo" + path;
     }
 }

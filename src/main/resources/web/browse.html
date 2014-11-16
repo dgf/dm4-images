@@ -11,42 +11,17 @@ img {
 <script type="text/javascript">
 // CKEditor image browse integration, see CKEDITOR.config.filebrowserImageBrowseUrl
 
-function showImages($, ck) {
+function showImages($, dm4c, ck) {
     var funcNum = getUrlParam('CKEditorFuncNum'),
-        images = request($, 'GET', '/eduzen/images/browse').items,
+        images = dm4c.restc.request('GET', '/images/browse').items,
         $body = $(document.body)
 
     $.each(images, function(i, image) {
-        if (typeof image.type !== 'undefined') {
-            if (image.type.indexOf("application/pdf") != -1) {
-                $wrapper = $('<div class="embed-wrapper" style="width: 400px;">')
-                var new_src = image.src.replace("http://localhost:8080", "")
-                $wrapper.append($('<object>').attr('data', new_src).attr('type', 'application/pdf').html(
-                    '<p>It appears you do not have a PDF plugin for this browser.</p>'
-                ))
-                $wrapper.append('<br/><a class="clicker" data="' +new_src+'" style="font-weight: bold;">'
-                    + 'Click here to embed it</a> or you can '
-                    + '<a href="' +new_src+ '">click here to download the ' +image.name+ '-file.</a>')
-                $body.append($wrapper)
-            } else if (image.type.indexOf("image") != -1) {
-                var new_src = image.src.replace("http://localhost:8080", "")
-                $body.append($('<img>').attr('src', new_src))
-            }
-        }
+        $body.append($('<img>').attr('src', image.src))
     })
 
     $body.on('click', 'img', function() {
         ck.tools.callFunction(funcNum, $(this).attr('src'))
-        window.close()
-    })
-
-    $body.on('click', 'object', function() {
-        ck.tools.callFunction(funcNum, $(this).attr('data'))
-        window.close()
-    })
-
-    $body.on('click', 'a.clicker', function() {
-        ck.tools.callFunction(funcNum, $(this).attr('data'))
         window.close()
     })
 }
@@ -57,43 +32,8 @@ function getUrlParam(param) {
         match = window.location.search.match(regex)
     return (match && match.length > 1) ? match[1] : ''
 }
-
-function request($, method, uri, data, callback, headers) {
-    var async = callback != undefined
-    var status          // used only for synchronous request: "success" if request was successful
-    var response_data   // used only for synchronous successful request: the response data (response body)
-    //
-    // if (LOG_AJAX_REQUESTS) dm4c.log(method + " " + uri + "\n..... " + JSON.stringify(data))
-    //
-    var content_type = "application/json"
-    data = JSON.stringify(data)
-    //
-    $.ajax({
-        type: method,
-        url: uri,
-        contentType: content_type,
-        headers: headers,
-        data: data,
-        dataType: "json",
-        processData: false,
-        async: async,
-        success: function(data, text_status, jq_xhr) {
-            if (callback) callback(data)
-            response_data = data
-        },
-        error: function(jq_xhr, text_status, error_thrown) {
-            throw {"status": text_status, "code": error_thrown}
-        },
-        complete: function(jq_xhr, text_status) {
-            status = text_status
-        }
-    })
-    if (!async && status == "success") {
-        return response_data
-    }
-}
 </script>
 </head>
-<body onload="showImages(window.opener.jQuery, window.opener.CKEDITOR)">
+<body onload="showImages(window.opener.jQuery, window.opener.dm4c, window.opener.CKEDITOR)">
 </body>
 </html>
