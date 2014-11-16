@@ -4,7 +4,7 @@ Enables the browsing and upload of images while editing HTML content in [CKEdito
 
 ## Requirements
 
-  * [DeepaMehta 4](http://github.com/jri/deepamehta) 4.1-SNAPSHOT
+  * [DeepaMehta 4](http://github.com/jri/deepamehta) 4.3
 
 ## Usage
 
@@ -20,4 +20,7 @@ every uploaded file is stored in the *images* directory
 this directory is also the base of the image browser that pops up after a click on *Browse Server*
 
 ![browse server](https://github.com/dgf/dm4-images/raw/master/doc/browse.png)
+
+Authors:
+Danny Graf, Malte Reißig 2012-2014
 
