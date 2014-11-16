@@ -1,8 +1,6 @@
 package de.deepamehta.plugins.images;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -17,10 +15,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import de.deepamehta.core.ResultSet;
 import de.deepamehta.core.osgi.PluginActivator;
 import de.deepamehta.core.service.ClientState;
 import de.deepamehta.core.service.PluginService;
+import de.deepamehta.core.service.ResultList;
 import de.deepamehta.core.service.annotation.ConsumesService;
 import de.deepamehta.plugins.files.DirectoryListing.FileItem;
 import de.deepamehta.plugins.files.ItemKind;
@@ -28,6 +26,7 @@ import de.deepamehta.plugins.files.ResourceInfo;
 import de.deepamehta.plugins.files.StoredFile;
 import de.deepamehta.plugins.files.UploadedFile;
 import de.deepamehta.plugins.files.service.FilesService;
+import java.util.ArrayList;
 
 /**
  * CKEditor compatible resources for image upload and browse.
@@ -36,6 +35,8 @@ import de.deepamehta.plugins.files.service.FilesService;
 public class ImagePlugin extends PluginActivator {
 
     public static final String IMAGES = "images";
+    
+    public static final String FILEREPO_BASE_URI_NAME = "filerepo";
 
     private static final String FILE_REPOSITORY_PATH = System.getProperty("dm4.filerepo.path");
 
@@ -84,15 +85,16 @@ public class ImagePlugin extends PluginActivator {
     @GET
     @Path("/browse")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResultSet<Image> browse() {
+    public ResultList<Image> browse() {
         log.info("browse images");
         try {
-            Set<Image> images = new HashSet<Image>();
+            ArrayList<Image> images = new ArrayList<Image>();
             for (FileItem image : fileService.getDirectoryListing(IMAGES).getFileItems()) {
                 String src = getRepoUri(image.getPath());
-                images.add(new Image(src, image.getMediaType(), image.getSize()));
+                images.add(new Image(src, image.getMediaType(), 
+                    image.getSize(), image.getName()));
             }
-            return new ResultSet<Image>(images.size(), images);
+            return new ResultList<Image>(images.size(), images);
         } catch (WebApplicationException e) { // fileService.getDirectoryListing
             throw e; // do not wrap it again
         } catch (Exception e) {
@@ -171,6 +173,7 @@ public class ImagePlugin extends PluginActivator {
      * @return URI
      */
     private String getRepoUri(String path) {
-        return uriInfo.getBaseUri() + "filerepo" + path;
+        // ### in some cases the uriInfo (Context) may be empty!
+        return uriInfo.getBaseUri() + FILEREPO_BASE_URI_NAME + path;
     }
 }

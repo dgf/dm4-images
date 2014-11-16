@@ -12,11 +12,14 @@ public class Image implements JSONEnabled {
     private final String src;
 
     private final String type;
-
-    public Image(String src, String mediaType, Long size) {
+    
+    private final String name;
+    
+    public Image(String src, String mediaType, Long size, String fileName) {
         this.size = size;
         this.src = src;
         this.type = mediaType;
+        this.name = fileName;
     }
 
     public Long getSize() {
@@ -31,12 +34,17 @@ public class Image implements JSONEnabled {
         return type;
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public JSONObject toJSON() {
         JSONObject image = new JSONObject();
         try {
             image.put("src", src);
             image.put("type", type);
+            image.put("name", name);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
