@@ -1,0 +1,66 @@
+
+.image-browser {
+    margin-top: 20px;
+    font-family: sans-serif;
+}
+
+.image-browser span {
+    padding-left: 10px; padding-right: 10px;
+    cursor: pointer;
+    margin: 10px;
+    color: #a9a9a9;
+}
+
+.image-browser span.current {
+    color: #000;
+}
+
+.image-browser li span {
+    display: none;
+}
+
+.image-browser ul {
+    margin: 10px;
+    padding: 0px;
+}
+
+.image-browser ul li {
+    float: left;
+    margin-left: 0px;
+    list-style-type: none;
+    cursor: pointer;
+}
+
+.image-browser li .name,
+.image-browser li .size,
+.image-browser li .type {
+    display:none;
+}
+
+.image-browser img {
+    max-width: 572px;
+    max-height: 429px;
+    margin: 10px;
+}
+
+.image-browser.list li .name,
+.image-browser.list li .type,
+.image-browser.list li .size {
+    margin: 0px;
+    color: #a9a9a9;
+    display: inline-block;
+    margin-right: 30px;
+}
+
+.image-browser.list li:hover span {
+    color: #000
+}
+
+.image-browser.list img {
+    display: none;
+}
+
+.image-browser.list ul li {
+    float: none;
+    
+}

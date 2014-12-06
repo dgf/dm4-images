@@ -44,6 +44,7 @@ public class Image implements JSONEnabled {
         try {
             image.put("src", src);
             image.put("type", type);
+            image.put("size", size);
             image.put("name", name);
         } catch (JSONException e) {
             throw new RuntimeException(e);

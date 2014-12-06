@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -16,10 +15,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import de.deepamehta.core.osgi.PluginActivator;
-import de.deepamehta.core.service.ClientState;
+import de.deepamehta.core.service.Inject;
 import de.deepamehta.core.service.PluginService;
 import de.deepamehta.core.service.ResultList;
-import de.deepamehta.core.service.annotation.ConsumesService;
+import de.deepamehta.core.service.Transactional;
 import de.deepamehta.plugins.files.DirectoryListing.FileItem;
 import de.deepamehta.plugins.files.ItemKind;
 import de.deepamehta.plugins.files.ResourceInfo;
@@ -42,6 +41,7 @@ public class ImagePlugin extends PluginActivator {
 
     private static Logger log = Logger.getLogger(ImagePlugin.class.getName());
 
+    @Inject
     private FilesService fileService;
 
     @Context
@@ -63,13 +63,13 @@ public class ImagePlugin extends PluginActivator {
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_HTML)
+    @Transactional
     public String upload(//
             UploadedFile image,//
-            @QueryParam("CKEditorFuncNum") Long func,//
-            @HeaderParam("Cookie") ClientState cookie) {
+            @QueryParam("CKEditorFuncNum") Long func) {
         log.info("upload image " + image.getName());
         try {
-            StoredFile file = fileService.storeFile(image, IMAGES, cookie);
+            StoredFile file = fileService.storeFile(image, IMAGES);
             String path = "/" + IMAGES + "/" + file.getFileName();
             return getCkEditorCall(func, getRepoUri(path), "");
         } catch (Exception e) {
@@ -116,7 +116,6 @@ public class ImagePlugin extends PluginActivator {
      * Reference the file service and create the repository path if necessary.
      */
     @Override
-    @ConsumesService("de.deepamehta.plugins.files.service.FilesService")
     public void serviceArrived(PluginService service) {
         if (service instanceof FilesService) {
             log.fine("file service arrived");
