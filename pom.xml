@@ -7,7 +7,7 @@
     <name>DeepaMehta 4 Images</name>
     <groupId>de.deepamehta</groupId>
     <artifactId>dm44-deepamehta-images</artifactId>
-    <version>0.0.3</version>
+    <version>0.9.2</version>
     <packaging>bundle</packaging>
 
     <parent>
@@ -15,6 +15,13 @@
         <artifactId>deepamehta-plugin-parent</artifactId>
         <version>4.4</version>
     </parent>
+    
+    <repositories>
+        <repository>
+            <id>deepamehta-public-repository</id>
+            <url>http://m2.deepamehta.de</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -23,7 +30,7 @@
             <version>4.4</version>
         </dependency>
     </dependencies>
-
+    
     <build>
         <plugins>
             <plugin>
