@@ -32,14 +32,13 @@ import java.util.ArrayList;
  */
 @Path("/images")
 public class ImagePlugin extends PluginActivator {
-
-    public static final String IMAGES = "images";
     
+    private static Logger log = Logger.getLogger(ImagePlugin.class.getName());
+
     public static final String FILEREPO_BASE_URI_NAME = "filerepo";
+    public static final String FILEREPO_IMAGES_SUBFOLDER = "images";
 
     private static final String FILE_REPOSITORY_PATH = System.getProperty("dm4.filerepo.path");
-
-    private static Logger log = Logger.getLogger(ImagePlugin.class.getName());
 
     @Inject
     private FilesService fileService;
@@ -69,8 +68,8 @@ public class ImagePlugin extends PluginActivator {
             @QueryParam("CKEditorFuncNum") Long func) {
         log.info("upload image " + image.getName());
         try {
-            StoredFile file = fileService.storeFile(image, IMAGES);
-            String path = "/" + IMAGES + "/" + file.getFileName();
+            StoredFile file = fileService.storeFile(image, FILEREPO_IMAGES_SUBFOLDER);
+            String path = "/" + FILEREPO_IMAGES_SUBFOLDER + "/" + file.getFileName();
             return getCkEditorCall(func, getRepoUri(path), "");
         } catch (Exception e) {
             return getCkEditorCall(func, "", e.getMessage());
@@ -89,7 +88,7 @@ public class ImagePlugin extends PluginActivator {
         log.info("browse images");
         try {
             ArrayList<Image> images = new ArrayList<Image>();
-            for (FileItem image : fileService.getDirectoryListing(IMAGES).getFileItems()) {
+            for (FileItem image : fileService.getDirectoryListing(FILEREPO_IMAGES_SUBFOLDER).getFileItems()) {
                 String src = getRepoUri(image.getPath());
                 images.add(new Image(src, image.getMediaType(), 
                     image.getSize(), image.getName()));
@@ -128,10 +127,10 @@ public class ImagePlugin extends PluginActivator {
         // TODO move the initialization to migration "0"
         try {
             // check image file repository
-            ResourceInfo resourceInfo = fileService.getResourceInfo(IMAGES);
+            ResourceInfo resourceInfo = fileService.getResourceInfo(FILEREPO_IMAGES_SUBFOLDER);
             if (resourceInfo.getItemKind() != ItemKind.DIRECTORY) {
                 String message = "image storage directory " + FILE_REPOSITORY_PATH + File.separator
-                        + IMAGES + " can not be used";
+                        + FILEREPO_IMAGES_SUBFOLDER + " can not be used";
                 throw new IllegalStateException(message);
             }
         } catch (WebApplicationException e) {
@@ -140,7 +139,7 @@ public class ImagePlugin extends PluginActivator {
                 throw e;
             } else {
                 log.info("create image directory");
-                fileService.createFolder(IMAGES, "/");
+                fileService.createFolder(FILEREPO_IMAGES_SUBFOLDER, "/");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
