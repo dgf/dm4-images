@@ -1,6 +1,5 @@
 package de.deepamehta.plugins.images;
 
-import java.io.File;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -16,12 +15,9 @@ import javax.ws.rs.core.UriInfo;
 
 import de.deepamehta.core.osgi.PluginActivator;
 import de.deepamehta.core.service.Inject;
-import de.deepamehta.core.service.PluginService;
 import de.deepamehta.core.service.ResultList;
 import de.deepamehta.core.service.Transactional;
 import de.deepamehta.plugins.files.DirectoryListing.FileItem;
-import de.deepamehta.plugins.files.ItemKind;
-import de.deepamehta.plugins.files.ResourceInfo;
 import de.deepamehta.plugins.files.StoredFile;
 import de.deepamehta.plugins.files.UploadedFile;
 import de.deepamehta.plugins.files.service.FilesService;
@@ -37,8 +33,7 @@ public class ImagePlugin extends PluginActivator {
 
     public static final String FILEREPO_BASE_URI_NAME = "filerepo";
     public static final String FILEREPO_IMAGES_SUBFOLDER = "images";
-
-    private static final String FILE_REPOSITORY_PATH = System.getProperty("dm4.filerepo.path");
+    public static final String FILE_REPOSITORY_PATH = System.getProperty("dm4.filerepo.path");
 
     @Inject
     private FilesService fileService;
@@ -98,51 +93,6 @@ public class ImagePlugin extends PluginActivator {
             throw e; // do not wrap it again
         } catch (Exception e) {
             throw new WebApplicationException(e);
-        }
-    }
-
-    /**
-     * Nullify file service reference.
-     */
-    @Override
-    public void serviceGone(PluginService service) {
-        if (service == fileService) {
-            fileService = null;
-        }
-    }
-
-    /**
-     * Reference the file service and create the repository path if necessary.
-     */
-    @Override
-    public void serviceArrived(PluginService service) {
-        if (service instanceof FilesService) {
-            log.fine("file service arrived");
-            fileService = (FilesService) service;
-            postInstallMigration();
-        }
-    }
-
-    private void postInstallMigration() {
-        // TODO move the initialization to migration "0"
-        try {
-            // check image file repository
-            ResourceInfo resourceInfo = fileService.getResourceInfo(FILEREPO_IMAGES_SUBFOLDER);
-            if (resourceInfo.getItemKind() != ItemKind.DIRECTORY) {
-                String message = "image storage directory " + FILE_REPOSITORY_PATH + File.separator
-                        + FILEREPO_IMAGES_SUBFOLDER + " can not be used";
-                throw new IllegalStateException(message);
-            }
-        } catch (WebApplicationException e) {
-            // catch fileService info request error
-            if (e.getResponse().getStatus() != 404) {
-                throw e;
-            } else {
-                log.info("create image directory");
-                fileService.createFolder(FILEREPO_IMAGES_SUBFOLDER, "/");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
