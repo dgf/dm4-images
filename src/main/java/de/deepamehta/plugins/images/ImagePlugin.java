@@ -1,27 +1,21 @@
 package de.deepamehta.plugins.images;
 
-import java.util.logging.Logger;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
-
 import de.deepamehta.core.osgi.PluginActivator;
 import de.deepamehta.core.service.Inject;
+import de.deepamehta.core.Topic;
 import de.deepamehta.core.service.ResultList;
 import de.deepamehta.core.service.Transactional;
 import de.deepamehta.plugins.files.DirectoryListing.FileItem;
-import de.deepamehta.plugins.files.StoredFile;
-import de.deepamehta.plugins.files.UploadedFile;
-import de.deepamehta.plugins.files.service.FilesService;
+import de.deepamehta.plugins.files.*;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.ext.RuntimeDelegate;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /**
  * CKEditor compatible resources for image upload and browse.
@@ -33,7 +27,7 @@ public class ImagePlugin extends PluginActivator {
 
     public static final String FILEREPO_BASE_URI_NAME = "filerepo";
     public static final String FILEREPO_IMAGES_SUBFOLDER = "images";
-    public static final String FILE_REPOSITORY_PATH = System.getProperty("dm4.filerepo.path");
+    // public static final String FILE_REPOSITORY_PATH = System.getProperty("dm4.filerepo.path");
 
     @Inject
     private FilesService fileService;
@@ -49,8 +43,6 @@ public class ImagePlugin extends PluginActivator {
      *            Uploaded file resource.
      * @param func
      *            CKEDITOR function number to call.
-     * @param cookie
-     *            Actual cookie.
      * @return JavaScript snippet that calls CKEditor
      */
     @POST
@@ -58,15 +50,15 @@ public class ImagePlugin extends PluginActivator {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_HTML)
     @Transactional
-    public String upload(//
-            UploadedFile image,//
-            @QueryParam("CKEditorFuncNum") Long func) {
+    public String upload(UploadedFile image, @QueryParam("CKEditorFuncNum") Long func) {
         log.info("upload image " + image.getName());
+        createImagesDirectoryInFileRepo();
         try {
-            StoredFile file = fileService.storeFile(image, FILEREPO_IMAGES_SUBFOLDER);
-            String path = "/" + FILEREPO_IMAGES_SUBFOLDER + "/" + file.getFileName();
+            StoredFile file = fileService.storeFile(image, prefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER);
+            String path = prefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER + File.separator + file.getFileName();
             return getCkEditorCall(func, getRepoUri(path), "");
         } catch (Exception e) {
+            log.severe(e.getMessage() + ", caused by " + e.getCause().getMessage());
             return getCkEditorCall(func, "", e.getMessage());
         }
     }
@@ -80,19 +72,47 @@ public class ImagePlugin extends PluginActivator {
     @Path("/browse")
     @Produces(MediaType.APPLICATION_JSON)
     public ResultList<Image> browse() {
-        log.info("browse images");
+        log.info("browse images in repository path " + prefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER);
+        createImagesDirectoryInFileRepo();
         try {
             ArrayList<Image> images = new ArrayList<Image>();
-            for (FileItem image : fileService.getDirectoryListing(FILEREPO_IMAGES_SUBFOLDER).getFileItems()) {
+            DirectoryListing imagesDirectory= fileService.getDirectoryListing(prefix() + File.separator +
+                    FILEREPO_IMAGES_SUBFOLDER);
+            for (FileItem image : imagesDirectory.getFileItems()) {
                 String src = getRepoUri(image.getPath());
-                images.add(new Image(src, image.getMediaType(), 
-                    image.getSize(), image.getName()));
+                images.add(new Image(src, image.getMediaType(), image.getSize(), image.getName()));
             }
             return new ResultList<Image>(images.size(), images);
         } catch (WebApplicationException e) { // fileService.getDirectoryListing
             throw e; // do not wrap it again
         } catch (Exception e) {
-            throw new WebApplicationException(e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void createImagesDirectoryInFileRepo() {
+        try {
+            // check image file repository
+            ResourceInfo resourceInfo = fileService.getResourceInfo(prefix() + File.separator +
+                    FILEREPO_IMAGES_SUBFOLDER);
+            // depending on prefix() we check for an "images" folder in the global or workspace filerepo
+            if (resourceInfo.getItemKind() != ItemKind.DIRECTORY) {
+                String message = "ImagePlugin: \"images\" storage directory in repo path " + fileService.getFile("/") +
+                        prefix() + File.separator + ImagePlugin.FILEREPO_IMAGES_SUBFOLDER + " can not be used";
+                throw new IllegalStateException(message);
+            }
+        } catch (WebApplicationException e) {
+            log.info("Created the \"images\" subfolder on the fly for new filerepo in " + fileService.getFile("/") +
+                    prefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER + "!");
+            try {
+                fileService.createFolder(FILEREPO_IMAGES_SUBFOLDER, prefix());
+            } catch (RuntimeException ex) {
+                log.warning("RuntimeException caught during folder creation, presumably the folder " +
+                        "must already EXIST, so OK:" + ex.getMessage());
+            }
+            // catch fileService create request failed because of: folder exists
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -124,4 +144,10 @@ public class ImagePlugin extends PluginActivator {
         // ### in some cases the uriInfo (Context) may be empty!
         return uriInfo.getBaseUri() + FILEREPO_BASE_URI_NAME + path;
     }
+
+    private String prefix() {
+        File repo = fileService.getFile("/");
+        return ((FilesPlugin) fileService).repoPath(repo);
+    }
+
 }
