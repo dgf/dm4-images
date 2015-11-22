@@ -1,4 +1,12 @@
 
+/** Override default Page Panel rendering. */
+
+#page-content .box img {
+    max-width: 100%;
+}
+
+/** Image Browser specific styles*/
+
 .image-browser {
     margin-top: 20px;
     font-family: sans-serif;
@@ -62,5 +70,4 @@
 
 .image-browser.list ul li {
     float: none;
-    
 }
