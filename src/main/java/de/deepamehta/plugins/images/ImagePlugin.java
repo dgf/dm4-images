@@ -25,8 +25,9 @@ public class ImagePlugin extends PluginActivator {
     
     private static Logger log = Logger.getLogger(ImagePlugin.class.getName());
 
-    public static final String FILEREPO_BASE_URI_NAME = "filerepo";
-    public static final String FILEREPO_IMAGES_SUBFOLDER = "images";
+    public static final String FILEREPO_BASE_URI_NAME       = "filerepo";
+    public static final String FILEREPO_IMAGES_SUBFOLDER    = "images";
+    public static final String DM4_HOST_URL = System.getProperty("dm4.host.url");
     // public static final String FILE_REPOSITORY_PATH = System.getProperty("dm4.filerepo.path");
 
     @Inject
@@ -133,16 +134,15 @@ public class ImagePlugin extends PluginActivator {
     }
 
     /**
-     * Returns an external accessible file repository URI of path based on
-     * actual request URI.
+     * Returns an external accessible file repository URI of path based on the
+     * <code>dm4.host.url</code> platform configuration option.
      * 
      * @param path
      *            Relative path of a file repository resource.
      * @return URI
      */
     private String getRepoUri(String path) {
-        // ### in some cases the uriInfo (Context) may be empty!
-        return uriInfo.getBaseUri() + FILEREPO_BASE_URI_NAME + path;
+        return DM4_HOST_URL + FILEREPO_BASE_URI_NAME + path;
     }
 
     private String prefix() {
