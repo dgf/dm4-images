@@ -7,7 +7,7 @@
     <name>DeepaMehta 4 Images</name>
     <groupId>de.deepamehta</groupId>
     <artifactId>dm47-deepamehta-images</artifactId>
-    <version>0.9.6</version>
+    <version>0.9.7</version>
     <packaging>bundle</packaging>
 
     <parent>

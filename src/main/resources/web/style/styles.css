@@ -1,10 +1,4 @@
 
-/** Override default Page Panel rendering. */
-
-#page-content .box img {
-    max-width: 100%;
-}
-
 /** Image Browser specific styles*/
 
 .image-browser {
