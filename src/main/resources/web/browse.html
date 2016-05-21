@@ -2,16 +2,15 @@
 <html>
     <head>
         <title>DeepaMehta Image Browser</title>
+        <meta charset="UTF-8" />
         <link rel="stylesheet" href="/de.deepamehta.images/style/styles.css" type="text/css" />
         <script type="text/javascript">
         // CKEditor image browse integration, see CKEDITOR.config.filebrowserImageBrowseUrl
-        
+
             function showImages($, dm4c, ck) {
                 var funcNum = getUrlParam('CKEditorFuncNum')
-                var images = dm4c.restc.request('GET', '/images/browse').items
+                var images = dm4c.restc.request('GET', '/images/browse')
                 var $body = $(document.body)
-                
-                
                 var $listButton = $('<span>').addClass('listview').text('List view')
                     $listButton.click(function (e) {
                         switchToListLayout();
@@ -20,7 +19,6 @@
                     $previewButton.click(function (e) {
                         switchToPreviewLayout();
                     })
-                    
                 var $ul = $('<ul>')
                 $.each(images, function (i, image) {
                     var bytesize = Math.round(image.size / 1000)
@@ -30,19 +28,16 @@
                     var $fileSize = $('<span class="size">').text(bytesize + ' KByte')
                     var $fileType = $('<span class="type">').text(image.type)
                     var $item = $('<li>').append($img).append('<br/>')
-                            .append($fileName).append($fileSize).append($fileType)
+                        .append($fileName).append($fileSize).append($fileType)
                     $ul.append($item)
                 })
-                
                 $body.append($previewButton).append($listButton).append('<br/>')
-                
                 $body.append($ul)
-
                 $body.on('click', 'li', function () {
                     ck.tools.callFunction(funcNum, $('img', this).attr('src'))
                     window.close()
                 })
-                
+
                 function switchToListLayout() {
                     $body.addClass('list')
                     $previewButton.removeClass('current')

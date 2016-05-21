@@ -2,19 +2,15 @@ package de.deepamehta.plugins.images;
 
 import de.deepamehta.core.osgi.PluginActivator;
 import de.deepamehta.core.service.Inject;
-import de.deepamehta.core.Topic;
-import de.deepamehta.core.service.ResultList;
 import de.deepamehta.core.service.Transactional;
-import de.deepamehta.plugins.files.DirectoryListing.FileItem;
-import de.deepamehta.plugins.files.*;
+import de.deepamehta.files.DirectoryListing.FileItem;
+import de.deepamehta.files.*;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.RuntimeDelegate;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -33,8 +29,6 @@ public class ImagePlugin extends PluginActivator {
     @Inject
     private FilesService fileService;
 
-    @Context
-    private UriInfo uriInfo;
 
     /**
      * CKEditor image upload integration, see
@@ -52,11 +46,13 @@ public class ImagePlugin extends PluginActivator {
     @Produces(MediaType.TEXT_HTML)
     @Transactional
     public String upload(UploadedFile image, @QueryParam("CKEditorFuncNum") Long func) {
-        log.info("upload image " + image.getName());
-        createImagesDirectoryInFileRepo();
+        String imagesFolderPath = FILEREPO_IMAGES_SUBFOLDER;
+        if (!fileService.pathPrefix().equals("/")) imagesFolderPath = fileService.pathPrefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER;
+        createImagesDirectoryInFileRepo(imagesFolderPath);
+        log.info("Upload image " + image.getName() + " to filerepo folder=" + imagesFolderPath);
         try {
-            StoredFile file = fileService.storeFile(image, prefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER);
-            String path = prefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER + File.separator + file.getFileName();
+            StoredFile file = fileService.storeFile(image, imagesFolderPath);
+            String path = imagesFolderPath + File.separator + file.getFileName();
             return getCkEditorCall(func, getRepoUri(path), "");
         } catch (Exception e) {
             log.severe(e.getMessage() + ", caused by " + e.getCause().getMessage());
@@ -72,53 +68,55 @@ public class ImagePlugin extends PluginActivator {
     @GET
     @Path("/browse")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResultList<Image> browse() {
-        log.info("browse images in repository path " + prefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER);
-        createImagesDirectoryInFileRepo();
+    public List<Image> browse() {
+        String imagesFolderPath = FILEREPO_IMAGES_SUBFOLDER;
+        if (!fileService.pathPrefix().equals("/")) imagesFolderPath = fileService.pathPrefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER;
+        log.info("Browse images in repository path \"" + imagesFolderPath + "\"");
+        createImagesDirectoryInFileRepo(imagesFolderPath);
         try {
             ArrayList<Image> images = new ArrayList<Image>();
-            DirectoryListing imagesDirectory= fileService.getDirectoryListing(prefix() + File.separator +
-                    FILEREPO_IMAGES_SUBFOLDER);
+            DirectoryListing imagesDirectory = fileService.getDirectoryListing(imagesFolderPath);
             for (FileItem image : imagesDirectory.getFileItems()) {
+                log.info("  Include image in repository with name \"" + image.getName() + "\"");
                 String src = getRepoUri(image.getPath());
                 images.add(new Image(src, image.getMediaType(), image.getSize(), image.getName()));
             }
-            return new ResultList<Image>(images.size(), images);
+            return images;
         } catch (WebApplicationException e) { // fileService.getDirectoryListing
+            log.info("Calling for a DirectoryListing has THROWN an Error");
             throw e; // do not wrap it again
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void createImagesDirectoryInFileRepo() {
+    /** Caller must make sure that folderPath has set the right prefix(). */
+    private void createImagesDirectoryInFileRepo(String folderPath) {
         try {
             // check image file repository
-            ResourceInfo resourceInfo = fileService.getResourceInfo(prefix() + File.separator +
+            if (fileService.fileExists(folderPath)) {
+                log.info("Images Subfolder exists in Repo at=" + folderPath + " doing nothing.");
+                ResourceInfo resourceInfo = fileService.getResourceInfo(fileService.pathPrefix() + File.separator +
                     FILEREPO_IMAGES_SUBFOLDER);
-            // depending on prefix() we check for an "images" folder in the global or workspace filerepo
-            if (resourceInfo.getItemKind() != ItemKind.DIRECTORY) {
-                String message = "ImagePlugin: \"images\" storage directory in repo path " + fileService.getFile("/") +
-                        prefix() + File.separator + ImagePlugin.FILEREPO_IMAGES_SUBFOLDER + " can not be used";
-                throw new IllegalStateException(message);
+                if (resourceInfo.getItemKind() != ItemKind.DIRECTORY) {
+                    String message = "ImagePlugin: \"images\" storage directory in repo path " + folderPath + " can not be used";
+                    throw new IllegalStateException(message);
+                }
+            } else {
+                if (!fileService.fileExists(fileService.pathPrefix())) {
+                    log.info("Creating a new Workspace folder in filerepo" + fileService.pathPrefix()+ "!");
+                    fileService.createFolder(fileService.pathPrefix(), "/"); // Creating WS Folder
+                }
+                log.info("Creating the \"images\" subfolder on the fly for new filerepo in " + folderPath+ "!");
+                fileService.createFolder(FILEREPO_IMAGES_SUBFOLDER, fileService.pathPrefix());
             }
-        } catch (WebApplicationException e) {
-            log.info("Created the \"images\" subfolder on the fly for new filerepo in " + fileService.getFile("/") +
-                    prefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER + "!");
-            try {
-                fileService.createFolder(FILEREPO_IMAGES_SUBFOLDER, prefix());
-            } catch (RuntimeException ex) {
-                log.warning("RuntimeException caught during folder creation, presumably the folder " +
-                        "must already EXIST, so OK:" + ex.getMessage());
-            }
-            // catch fileService create request failed because of: folder exists
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     /**
-     * Returns a in-line JavaScript snippet that calls the parent CKEditor.
+     * Returns an in-line JavaScript snippet that calls the parent CKEditor.
      * 
      * @param func
      *            CKEDITOR function number.
@@ -143,11 +141,6 @@ public class ImagePlugin extends PluginActivator {
      */
     private String getRepoUri(String path) {
         return DM4_HOST_URL + FILEREPO_BASE_URI_NAME + path;
-    }
-
-    private String prefix() {
-        File repo = fileService.getFile("/");
-        return ((FilesPlugin) fileService).repoPath(repo);
     }
 
 }
