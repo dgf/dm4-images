@@ -47,11 +47,11 @@ public class ImagePlugin extends PluginActivator {
      * @return JavaScript snippet that calls CKEditor
      */
     @POST
-    @Path("/upload")
+    @Path("/upload/ckeditor")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_HTML)
     @Transactional
-    public String upload(UploadedFile image, @QueryParam("CKEditorFuncNum") Long func) {
+    public String uploadCKEditor(UploadedFile image, @QueryParam("CKEditorFuncNum") Long func) {
         log.info("upload image " + image.getName());
         createImagesDirectoryInFileRepo();
         try {
@@ -61,6 +61,28 @@ public class ImagePlugin extends PluginActivator {
         } catch (Exception e) {
             log.severe(e.getMessage() + ", caused by " + e.getCause().getMessage());
             return getCkEditorCall(func, "", e.getMessage());
+        }
+    }
+
+    /**
+     * Standard image upload integration.
+     * @param image     Uploaded file resource.
+     * @return topic    File Topic
+     */
+    @POST
+    @Path("/upload")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Topic upload(UploadedFile image, @QueryParam("CKEditorFuncNum") Long func) {
+        log.info("upload image " + image.getName());
+        createImagesDirectoryInFileRepo();
+        try {
+            StoredFile file = fileService.storeFile(image, prefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER);
+            return fileService.getFileTopic(prefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER + File.separator + file.getFileName());
+        } catch (Exception e) {
+            log.severe(e.getMessage() + ", caused by " + e.getCause().getMessage());
+            return null;
         }
     }
 
