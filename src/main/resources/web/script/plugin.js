@@ -7,6 +7,7 @@ dm4c.add_plugin('de.deepamehta.images', function () {
     function doResize() {
         var imageTopic = dm4c.restc.request('GET', '/images/resize/' + dm4c.selected_object.id + "/300")
         dm4c.show_topic(new Topic(imageTopic), "show", undefined, true)
+        // dm4c.ui.open_dialog()
     }
 
     dm4c.add_listener('topic_commands', function (topic) {
@@ -17,7 +18,7 @@ dm4c.add_plugin('de.deepamehta.images', function () {
                 topic.childs["dm4.files.media_type"].value === "image/png")
             commands.push({is_separator: true, context: 'context-menu'})
             commands.push({
-                label: '300px Resize',
+                label: 'Resize Image',
                 handler: doResize,
                 context: ['context-menu', 'detail-panel-show']
             })
