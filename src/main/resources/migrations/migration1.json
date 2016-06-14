@@ -1,0 +1,9 @@
+{
+    "assoc_types": [
+        {
+            "value":            "Resized Image",
+            "uri":              "dm4.images.resized_image",
+            "data_type_uri":    "dm4.core.text"
+        }
+    ]
+}

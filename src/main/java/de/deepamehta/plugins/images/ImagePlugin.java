@@ -84,6 +84,10 @@ public class ImagePlugin extends PluginActivator {
         }
     }
 
+    /**
+     * Resizes an existing image represented by a DeepaMehta 4 file topic. File topic must already exist.
+     * @return  Topic   A new file topic representing the resized image.
+     */
     @GET
     @Path("/resize/{topicId}/{maxSize}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -114,13 +118,11 @@ public class ImagePlugin extends PluginActivator {
                     ImageIO.write(scaledImage, imageFileEnding, resizedImageFile);
                     log.warning("Image File already exists \"" + resizedImageFile.getPath() + "\" - REWRITE");
                 }
-                log.info("Fetching Image File Topic " + resizedImageFile.getAbsolutePath());
+                // Create File topic for newly created file
                 Topic resizedImageFileTopic = fileService.getFileTopic(
                     imageFileTopicParentRepositoryPath + File.separator + newFileName);
-                // Relate new file topic to original file topic
-                Association assoc = dm4.createAssociation(mf.newAssociationModel("dm4.core.association",
-                    mf.newTopicRoleModel(fileTopic.getId(), "dm4.core.default"),
-                    mf.newTopicRoleModel(resizedImageFileTopic.getId(), "dm4.core.default")));
+                // Associate new file topic with original file topic
+                createResizedImageAssociation(fileTopic, resizedImageFileTopic);
                 return resizedImageFileTopic;
             } else {
                 throw new WebApplicationException(new RuntimeException("Sorry! At the moment we can "
@@ -140,6 +142,12 @@ public class ImagePlugin extends PluginActivator {
 
     private String getParentFoldRepositoryPath(String fileTopicRepositoryPath) {
         return fileTopicRepositoryPath.substring(0, fileTopicRepositoryPath.lastIndexOf("/"));
+    }
+
+    private void createResizedImageAssociation(Topic original, Topic resized) {
+        dm4.createAssociation(mf.newAssociationModel("dm4.images.resized_image",
+                mf.newTopicRoleModel(original.getId(), "dm4.core.parent"),
+                mf.newTopicRoleModel(resized.getId(), "dm4.core.child")));
     }
 
     /**
