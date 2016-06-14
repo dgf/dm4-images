@@ -2,7 +2,6 @@ package de.deepamehta.plugins.images;
 
 import de.deepamehta.core.Association;
 import de.deepamehta.core.Topic;
-import de.deepamehta.core.model.SimpleValue;
 import de.deepamehta.core.osgi.PluginActivator;
 import de.deepamehta.core.service.Inject;
 import de.deepamehta.core.service.Transactional;
@@ -45,11 +44,11 @@ public class ImagePlugin extends PluginActivator {
      * @return JavaScript snippet that calls CKEditor
      */
     @POST
-    @Path("/upload")
+    @Path("/upload/ckeditor")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_HTML)
     @Transactional
-    public String upload(UploadedFile image, @QueryParam("CKEditorFuncNum") Long func) {
+    public String uploadCKEditor(UploadedFile image, @QueryParam("CKEditorFuncNum") Long func) {
         String imagesFolderPath = getImagesDirectoryInFileRepo();
         log.info("Upload image " + image.getName() + " to filerepo folder=" + imagesFolderPath);
         try {
@@ -59,6 +58,29 @@ public class ImagePlugin extends PluginActivator {
         } catch (Exception e) {
             log.severe(e.getMessage() + ", caused by " + e.getCause().getMessage());
             return getCkEditorCall(func, "", e.getMessage());
+        }
+    }
+
+    /**
+     * Standard image upload integration.
+     * @param image     Uploaded file resource.
+     * @return topic    File Topic
+     */
+    @POST
+    @Path("/upload")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Topic upload(UploadedFile image, @QueryParam("CKEditorFuncNum") Long func) {
+        String imagesFolderPath = getImagesDirectoryInFileRepo();
+        log.info("Upload image " + image.getName() + " to filerepo folder=" + imagesFolderPath);
+        try {
+            StoredFile file = fileService.storeFile(image, imagesFolderPath);
+            String path = imagesFolderPath + File.separator + file.getFileName();
+            return fileService.getFileTopic(path);
+        } catch (Exception e) {
+            log.severe(e.getMessage() + ", caused by " + e.getCause().getMessage());
+            return null;
         }
     }
 
@@ -156,7 +178,6 @@ public class ImagePlugin extends PluginActivator {
         try {
             // check image file repository
             if (fileService.fileExists(folderPath)) {
-                log.info("Images Subfolder exists in Repo at=" + folderPath + " doing nothing.");
                 ResourceInfo resourceInfo = fileService.getResourceInfo(fileService.pathPrefix() + File.separator +
                     FILEREPO_IMAGES_SUBFOLDER);
                 if (resourceInfo.getItemKind() != ItemKind.DIRECTORY) {

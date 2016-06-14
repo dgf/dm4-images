@@ -2,7 +2,7 @@
 dm4c.add_plugin('de.deepamehta.images', function () {
     // config lines are the same / work with "image2" plugin as well
     CKEDITOR.config.filebrowserImageBrowseUrl = '/de.deepamehta.images/browse.html'
-    CKEDITOR.config.filebrowserImageUploadUrl = '/images/upload'
+    CKEDITOR.config.filebrowserImageUploadUrl = '/images/upload/ckeditor'
 
     function doResize() {
         var imageTopic = dm4c.restc.request('GET', '/images/resize/' + dm4c.selected_object.id + "/300")
@@ -25,5 +25,4 @@ dm4c.add_plugin('de.deepamehta.images', function () {
         }
         return commands
     })
-
 })
