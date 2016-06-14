@@ -1,6 +1,5 @@
 package de.deepamehta.plugins.images;
 
-import de.deepamehta.core.Association;
 import de.deepamehta.core.Topic;
 import de.deepamehta.core.osgi.PluginActivator;
 import de.deepamehta.core.service.Inject;
@@ -18,6 +17,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.Response;
 import org.imgscalr.Scalr;
+import org.imgscalr.Scalr.Mode;
 
 /**
  * CKEditor compatible resources for image upload and browse.
@@ -89,10 +89,11 @@ public class ImagePlugin extends PluginActivator {
      * @return  Topic   A new file topic representing the resized image.
      */
     @GET
-    @Path("/resize/{topicId}/{maxSize}")
+    @Path("/resize/{topicId}/{maxSize}/{mode}")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Topic resizeImageFileTopic(@PathParam("topicId") long fileTopicId, @PathParam("maxSize") int maxSize) {
+    public Topic resizeImageFileTopic(@PathParam("topicId") long fileTopicId, @PathParam("maxSize") int maxSize,
+            @PathParam("mode") String mode) {
         log.info("File Topic to Resize (ID: " + fileTopicId + ") Max Size: " + maxSize + "px");
         try {
             File fileTopicFile = fileService.getFile(fileTopicId);
@@ -104,8 +105,14 @@ public class ImagePlugin extends PluginActivator {
                 log.info("Image File Topic Path requested to be RESIZED: " + fileTopicRepositoryPath);
                 BufferedImage srcImage = ImageIO.read(fileTopicFile); // Load image
                 log.info("Image File Buffered " + srcImage); // Print Image Metadata
-                BufferedImage scaledImage = Scalr.resize(srcImage, maxSize); // Scale image
-                // 
+                BufferedImage scaledImage = null;
+                if (mode.equals("width")) {
+                    scaledImage = Scalr.resize(srcImage, Mode.FIT_TO_WIDTH, maxSize);
+                } else if (mode.equals("height")) {
+                    scaledImage = Scalr.resize(srcImage, Mode.FIT_TO_HEIGHT, maxSize);
+                } else {
+                    scaledImage = Scalr.resize(srcImage, Mode.AUTOMATIC, maxSize);
+                }
                 String imageFileEnding = fileTopicFileName.substring(fileTopicFileName.indexOf(".") + 1);
                 String imageFileTopicParentRepositoryPath = getParentFoldRepositoryPath(fileTopicRepositoryPath);
                 String newFileName = calculateResizedFilename(fileTopicFileName, maxSize + "");

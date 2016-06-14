@@ -3,7 +3,15 @@
         {
             "value":            "Resized Image",
             "uri":              "dm4.images.resized_image",
-            "data_type_uri":    "dm4.core.text"
+            "data_type_uri":    "dm4.core.text",
+            "view_config_topics": [
+                {
+                    "type_uri": "dm4.webclient.view_config",
+                    "childs": {
+                        "dm4.webclient.color": "#9366c9"
+                    }
+                }
+            ]
         }
     ]
 }
