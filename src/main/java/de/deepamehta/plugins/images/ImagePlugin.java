@@ -71,7 +71,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Topic upload(UploadedFile image, @QueryParam("CKEditorFuncNum") Long func) {
+    public Topic upload(UploadedFile image) {
         String imagesFolderPath = getImagesDirectoryInFileRepo();
         log.info("Upload image " + image.getName() + " to filerepo folder=" + imagesFolderPath);
         try {
@@ -181,7 +181,10 @@ public class ImagePlugin extends PluginActivator implements ImageService {
         }
     }
 
-    /** Caller must make sure that folderPath has set the right prefix(). */
+    /**
+     * Constructs path to the "images" folder, either in a workspace or in a global file repository.
+     * @return String   Repository path for storing images.
+     */
     private String getImagesDirectoryInFileRepo() {
         String folderPath = FILEREPO_IMAGES_SUBFOLDER; // global filerepo
         if (!fileService.pathPrefix().equals("/")) { // add workspace specific path in front of image folder name

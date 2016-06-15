@@ -4,8 +4,8 @@ dm4c.add_plugin('de.deepamehta.images', function () {
     CKEDITOR.config.filebrowserImageBrowseUrl = '/de.deepamehta.images/browse.html'
     CKEDITOR.config.filebrowserImageUploadUrl = '/images/upload/ckeditor'
 
-    var selectedMaxSize = undefined
-    var selectedMode = undefined
+    var selectedMaxSize = 300
+    var selectedMode = "auto"
 
     function openResizeDialog() {
         var resizeModeMenu = dm4c.ui.menu(function(result) {
@@ -44,7 +44,7 @@ dm4c.add_plugin('de.deepamehta.images', function () {
             "button_label": "Do Resize",
             "button_handler": function(e) {
                 var imageTopic = dm4c.restc.request('GET', '/images/resize/' + dm4c.selected_object.id + "/" + selectedMaxSize + "/" + selectedMode)
-                dm4c.show_topic(new Topic(imageTopic), "show", undefined, true)
+                dm4c.do_reveal_related_topic(imageTopic.id, "show")
                 resizeSettingsDialog.close()
             },
             "auto_close": false
