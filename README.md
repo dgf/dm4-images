@@ -4,9 +4,11 @@ Enables the browsing and upload of images while editing HTML content in [CKEdito
 
 Note: An editor can just include graphics which reside in the designated "images" folder of the respective file-repository.
 
+Since 0.9.8. this plugin adds a "Resize" command to all _Files_ of Media Type JPEG or PNG allowing users to easily create new, derived and resized versions of their graphic file without much hustle.
+
 ## Requirements
 
-  * [DeepaMehta 4](http://github.com/jri/deepamehta) 4.7
+  * [DeepaMehta 4](http://github.com/jri/deepamehta), 4.8.1 [Download](http://download.deepamehta.de)
 
 ## Usage
 
@@ -25,8 +27,12 @@ This directory is also the base of the image browser that pops up after a click 
 
 ![browse server](https://github.com/dgf/dm4-images/raw/master/doc/browse.png)
 
+## License Notes
 
-**Authors**
+Since 0.9.8 (14 June 2016) this bundle integrates the [imgscalr library](https://github.com/thebuzzmedia/imgscalr) which was licensed under the [Apache 2 License](https://github.com/thebuzzmedia/imgscalr/blob/master/LICENSE).
 
-Danny Graf and Malte Reißig 2012-2015
+
+## Authors
+
+Danny Graf and Malte Reißig 2012-2016
 

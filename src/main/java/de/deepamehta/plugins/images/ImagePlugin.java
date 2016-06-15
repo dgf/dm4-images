@@ -23,7 +23,7 @@ import org.imgscalr.Scalr.Mode;
  * CKEditor compatible resources for image upload and browse.
  */
 @Path("/images")
-public class ImagePlugin extends PluginActivator {
+public class ImagePlugin extends PluginActivator implements ImageService {
     
     private static Logger log = Logger.getLogger(ImagePlugin.class.getName());
 
@@ -84,14 +84,11 @@ public class ImagePlugin extends PluginActivator {
         }
     }
 
-    /**
-     * Resizes an existing image represented by a DeepaMehta 4 file topic. File topic must already exist.
-     * @return  Topic   A new file topic representing the resized image.
-     */
     @GET
     @Path("/resize/{topicId}/{maxSize}/{mode}")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
+    @Override
     public Topic resizeImageFileTopic(@PathParam("topicId") long fileTopicId, @PathParam("maxSize") int maxSize,
             @PathParam("mode") String mode) {
         log.info("File Topic to Resize (ID: " + fileTopicId + ") Max Size: " + maxSize + "px");
@@ -114,7 +111,7 @@ public class ImagePlugin extends PluginActivator {
                     scaledImage = Scalr.resize(srcImage, Mode.AUTOMATIC, maxSize);
                 }
                 String imageFileEnding = fileTopicFileName.substring(fileTopicFileName.indexOf(".") + 1);
-                String imageFileTopicParentRepositoryPath = getParentFoldRepositoryPath(fileTopicRepositoryPath);
+                String imageFileTopicParentRepositoryPath = getParentFolderRepositoryPath(fileTopicRepositoryPath);
                 String newFileName = calculateResizedFilename(fileTopicFileName, maxSize + "");
                 File resizedImageFile = new File(fileTopicFile.getParent() + File.separator + newFileName);
                 if (resizedImageFile.createNewFile()) {
@@ -147,7 +144,7 @@ public class ImagePlugin extends PluginActivator {
         return imageFileBeginning + "-" + sizeParameter + "px." + imageFileEnding;
     }
 
-    private String getParentFoldRepositoryPath(String fileTopicRepositoryPath) {
+    private String getParentFolderRepositoryPath(String fileTopicRepositoryPath) {
         return fileTopicRepositoryPath.substring(0, fileTopicRepositoryPath.lastIndexOf("/"));
     }
 
