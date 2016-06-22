@@ -1,4 +1,4 @@
-package de.deepamehta.plugins.images;
+package de.deepamehta.images;
 
 import de.deepamehta.core.Topic;
 import de.deepamehta.core.osgi.PluginActivator;

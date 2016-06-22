@@ -27,10 +27,16 @@ This directory is also the base of the image browser that pops up after a click 
 
 ![browse server](https://github.com/dgf/dm4-images/raw/master/doc/browse.png)
 
+## Release Notes
+
+0.9.8, 22 Jun 2016
+
+* Includes `Resize` command for file topics with Media Type `image/png` or `image/jpeg`
+* Compatible with DeepaMehta 4.8.1
+
 ## License Notes
 
 Since 0.9.8 (14 June 2016) this bundle integrates the [imgscalr library](https://github.com/thebuzzmedia/imgscalr) which was licensed under the [Apache 2 License](https://github.com/thebuzzmedia/imgscalr/blob/master/LICENSE).
-
 
 ## Authors
 

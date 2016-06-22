@@ -6,14 +6,14 @@
 
     <name>DeepaMehta 4 Images</name>
     <groupId>de.deepamehta</groupId>
-    <artifactId>dm48-deepamehta-images</artifactId>
-    <version>0.9.8-SNAPSHOT</version>
+    <artifactId>dm48-images</artifactId>
+    <version>0.9.8</version>
     <packaging>bundle</packaging>
 
     <parent>
         <groupId>de.deepamehta</groupId>
         <artifactId>deepamehta-plugin</artifactId>
-        <version>4.8</version>
+        <version>4.8.1</version>
     </parent>
 
     <!--properties>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>de.deepamehta</groupId>
             <artifactId>deepamehta-files</artifactId>
-            <version>4.8</version>
+            <version>4.8.1</version>
         </dependency>
 	<!-- http://mvnrepository.com/artifact/org.imgscalr/imgscalr-lib -->
 	<dependency>
@@ -48,7 +48,7 @@
                             de.deepamehta.images
                         </Bundle-SymbolicName>
                         <Bundle-Activator>
-                            de.deepamehta.plugins.images.ImagePlugin
+                            de.deepamehta.images.ImagePlugin
                         </Bundle-Activator>
                     </instructions>
                 </configuration>
