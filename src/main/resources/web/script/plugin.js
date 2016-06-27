@@ -49,7 +49,6 @@ dm4c.add_plugin('de.deepamehta.images', function () {
             },
             "auto_close": false
         })
-        console.log("Resize Dialog", resizeSettingsDialog)
         if (selectedMaxSize) {
             sizeMenu.select(selectedMaxSize)
         } else {
@@ -66,9 +65,9 @@ dm4c.add_plugin('de.deepamehta.images', function () {
         // Note: create permission now managed by core
         var commands = []
         if (topic.type_uri === 'dm4.files.file' && dm4c.restc.get_username()) {
-            if (topic.childs.hasOwnProperty("dm4.files.media_type")) {
-                if (topic.childs["dm4.files.media_type"].value === "image/jpeg" ||
-                    topic.childs["dm4.files.media_type"].value === "image/png") {
+            var media_type = topic.childs["dm4.files.media_type"]
+            if (media_type) {
+                if (media_type.value === "image/jpeg" || media_type.value === "image/png") {
                     commands.push({is_separator: true, context: 'context-menu'})
                     commands.push({
                         label: 'Resize...',
