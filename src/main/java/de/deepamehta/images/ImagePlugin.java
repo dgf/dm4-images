@@ -11,8 +11,11 @@ import java.awt.image.BufferedImage;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.Response;
@@ -235,7 +238,11 @@ public class ImagePlugin extends PluginActivator implements ImageService {
      * @return URI
      */
     private String getRepoUri(String path) {
-        return DM4_HOST_URL + FILEREPO_BASE_URI_NAME + path;
+        try {
+            return DM4_HOST_URL + FILEREPO_BASE_URI_NAME + "/" + URLEncoder.encode(path, "UTF-8").toString();
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
 }
