@@ -4,7 +4,7 @@ Enables the browsing and upload of images while editing HTML content in [CKEdito
 
 Note: An editor can just include graphics which reside in the designated "images" folder of the respective file-repository.
 
-Since 0.9.8. this plugin adds a "Resize" command to all _Files_ of Media Type JPEG or PNG allowing users to easily create new, derived and resized versions of their graphic file without much hustle.
+Since version _0.9.8_ this plugin adds a "Resize" command to all _Files_ of Media Type JPEG or PNG allowing users to easily create new, derived and resized versions of their graphic file without much hustle.
 
 ## Requirements
 
@@ -29,7 +29,11 @@ This directory is also the base of the image browser that pops up after a click 
 
 ## Release Notes
 
-0.9.8, 22 Jun 2016
+**0.9.10** -- Jul 03, 2016
+
+* Maintenance release fixing filepath URI encoding
+
+**0.9.8** -- Jun 22, 2016
 
 * Includes `Resize` command for file topics with Media Type `image/png` or `image/jpeg`
 * Compatible with DeepaMehta 4.8.1
