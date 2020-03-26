@@ -103,7 +103,7 @@
         console.log("[Images] Resize Parameter", this.widthOption, this.resizeMode, "Image File", this.file.value)
         this.http.post('/images/resize/' + this.file.id + '/' + this.widthOption + '/' + this.resizeMode)
         .then(response => {
-            this.$store.dispatch("revealRelatedTopic", response.data.id) // fixme: find name of action to reveal topic with the relating assoc
+            this.$store.dispatch("revealTopicById", response.data.id) // fixme: find name of action to reveal topic with the relating assoc
             this.$notify({
               title: 'Image Resized', type: 'success'
             })

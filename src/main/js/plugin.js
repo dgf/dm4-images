@@ -2,7 +2,7 @@ export default ({dm5, store, axios: http, Vue}) => ({
 
   init () {
     store.dispatch("registerUploadHandler", {
-      mimeType: "JPG", // mimeType or file name ending in UPPERCASE, Fixme: multiple values, e.g. PNG;JPEG;JPG;
+      mimeTypes: ["image/png", "image/jpg", "image/jpeg"],
       action: "/images/upload",
       selected: function(file, fileList) {
         console.log("[Images] upload dialog change selected for upload", fileList)
