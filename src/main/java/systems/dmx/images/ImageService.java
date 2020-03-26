@@ -1,10 +1,10 @@
-package de.deepamehta.images;
+package systems.dmx.images;
 
-import de.deepamehta.core.Topic;
+import systems.dmx.core.Topic;
 
 /**
  *
- * @author Malte Reißig (<a href="mailto:malte@mikromedia.de>Mailto</a>)
+ * @author Malte Reißig (<a href="mailto:malte@dmx.berlin>Email</a>)
  */
 public interface ImageService {
 

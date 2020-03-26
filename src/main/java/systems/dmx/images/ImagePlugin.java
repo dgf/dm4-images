@@ -1,12 +1,6 @@
-package de.deepamehta.images;
+package systems.dmx.images;
 
-import de.deepamehta.core.Topic;
-import de.deepamehta.core.osgi.PluginActivator;
-import de.deepamehta.core.service.Inject;
-import de.deepamehta.core.service.Transactional;
-import de.deepamehta.core.util.JavaUtils;
-import de.deepamehta.files.DirectoryListing.FileItem;
-import de.deepamehta.files.*;
+
 import java.awt.image.BufferedImage;
 
 import javax.ws.rs.*;
@@ -18,7 +12,18 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.Response;
 import org.imgscalr.Scalr;
-import org.imgscalr.Scalr.Mode;
+import systems.dmx.core.Topic;
+import systems.dmx.core.osgi.PluginActivator;
+import systems.dmx.core.service.Inject;
+import systems.dmx.core.service.Transactional;
+import systems.dmx.core.util.JavaUtils;
+import systems.dmx.files.DirectoryListing;
+import systems.dmx.files.DirectoryListing.FileItem;
+import systems.dmx.files.FilesService;
+import systems.dmx.files.ItemKind;
+import systems.dmx.files.ResourceInfo;
+import systems.dmx.files.StoredFile;
+import systems.dmx.files.UploadedFile;
 
 /**
  * CKEditor compatible resources for image upload and browse.
@@ -32,35 +37,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
     public static final String FILEREPO_IMAGES_SUBFOLDER    = "images";
     public static final String DM4_HOST_URL = System.getProperty("dm4.host.url");
 
-    @Inject private FilesService fileService;
-
-    /**
-     * CKEditor image upload integration, see
-     * CKEDITOR.config.filebrowserImageBrowseUrl
-     * 
-     * @param image
-     *            Uploaded file resource.
-     * @param func
-     *            CKEDITOR function number to call.
-     * @return JavaScript snippet that calls CKEditor
-     */
-    @POST
-    @Path("/upload/ckeditor")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.TEXT_HTML)
-    @Transactional
-    public String uploadCKEditor(UploadedFile image, @QueryParam("CKEditorFuncNum") Long func) {
-        String imagesFolderPath = getImagesDirectoryInFileRepo();
-        log.info("Upload image " + image.getName() + " to filerepo folder=" + imagesFolderPath);
-        try {
-            StoredFile file = fileService.storeFile(image, imagesFolderPath);
-            String path = imagesFolderPath + File.separator + file.getFileName();
-            return getCkEditorCall(func, getRepoUri(path), "");
-        } catch (Exception e) {
-            log.severe(e.getMessage() + ", caused by " + e.getCause().getMessage());
-            return getCkEditorCall(func, "", e.getMessage());
-        }
-    }
+    @Inject private FilesService files;
 
     /**
      * Standard image upload integration.
@@ -76,16 +53,16 @@ public class ImagePlugin extends PluginActivator implements ImageService {
         String imagesFolderPath = getImagesDirectoryInFileRepo();
         log.info("Upload image " + image.getName() + " to filerepo folder=" + imagesFolderPath);
         try {
-            StoredFile file = fileService.storeFile(image, imagesFolderPath);
+            StoredFile file = files.storeFile(image, imagesFolderPath);
             String path = imagesFolderPath + File.separator + file.getFileName();
-            return fileService.getFileTopic(path);
+            return files.getFileTopic(path);
         } catch (Exception e) {
             log.severe(e.getMessage() + ", caused by " + e.getCause().getMessage());
             return null;
         }
     }
 
-    @GET
+    @POST
     @Path("/resize/{topicId}/{maxSize}/{mode}")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
@@ -94,22 +71,22 @@ public class ImagePlugin extends PluginActivator implements ImageService {
             @PathParam("mode") String mode) {
         log.info("File Topic to Resize (ID: " + fileTopicId + ") Max Size: " + maxSize + "px");
         try {
-            File fileTopicFile = fileService.getFile(fileTopicId);
+            File fileTopicFile = files.getFile(fileTopicId);
             String fileTopicFileName = fileTopicFile.getName();
-            Topic fileTopic = dm4.getTopic(fileTopicId).loadChildTopics();
+            Topic fileTopic = dmx.getTopic(fileTopicId).loadChildTopics();
             String fileTopicRepositoryPath = fileTopic.getChildTopics().getString("dm4.files.path");
             String fileMediaType = fileTopic.getChildTopics().getString("dm4.files.media_type");
-            if (fileMediaType.contains("jpeg") || fileMediaType.contains("png")) {
+            if (fileMediaType.contains("jpeg") || fileMediaType.contains("jpg") || fileMediaType.contains("png")) {
                 log.info("Image File Topic Path requested to be RESIZED: " + fileTopicRepositoryPath);
                 BufferedImage srcImage = ImageIO.read(fileTopicFile); // Load image
                 log.info("Image File Buffered " + srcImage); // Print Image Metadata
                 BufferedImage scaledImage = null;
                 if (mode.equals("width")) {
-                    scaledImage = Scalr.resize(srcImage, Mode.FIT_TO_WIDTH, maxSize);
+                    scaledImage = Scalr.resize(srcImage, org.imgscalr.Scalr.Mode.FIT_TO_WIDTH, maxSize);
                 } else if (mode.equals("height")) {
-                    scaledImage = Scalr.resize(srcImage, Mode.FIT_TO_HEIGHT, maxSize);
+                    scaledImage = Scalr.resize(srcImage, org.imgscalr.Scalr.Mode.FIT_TO_HEIGHT, maxSize);
                 } else {
-                    scaledImage = Scalr.resize(srcImage, Mode.AUTOMATIC, maxSize);
+                    scaledImage = Scalr.resize(srcImage, org.imgscalr.Scalr.Mode.AUTOMATIC, maxSize);
                 }
                 String imageFileEnding = fileTopicFileName.substring(fileTopicFileName.indexOf(".") + 1);
                 String imageFileTopicParentRepositoryPath = getParentFolderRepositoryPath(fileTopicRepositoryPath);
@@ -124,7 +101,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
                     log.warning("Image File already exists \"" + resizedImageFile.getPath() + "\" - REWRITE");
                 }
                 // Create File topic for newly created file
-                Topic resizedImageFileTopic = fileService.getFileTopic(
+                Topic resizedImageFileTopic = files.getFileTopic(
                     imageFileTopicParentRepositoryPath + File.separator + newFileName);
                 // Associate new file topic with original file topic
                 createResizedImageAssociation(fileTopic, resizedImageFileTopic);
@@ -150,14 +127,14 @@ public class ImagePlugin extends PluginActivator implements ImageService {
     }
 
     private void createResizedImageAssociation(Topic original, Topic resized) {
-        dm4.createAssociation(mf.newAssociationModel("dm4.images.resized_image",
-                mf.newTopicRoleModel(original.getId(), "dm4.core.parent"),
-                mf.newTopicRoleModel(resized.getId(), "dm4.core.child")));
+        dmx.createAssoc(mf.newAssocModel("dm4.images.resized_image",
+                mf.newTopicPlayerModel(original.getId(), "dm4.core.parent"),
+                mf.newTopicPlayerModel(resized.getId(), "dm4.core.child")));
     }
 
     /**
      * Returns a set of all image source URLs.
-     * 
+     * Todo: Deprecated
      * @return all image sources
      */
     @GET
@@ -167,7 +144,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
         String imagesFolderPath = getImagesDirectoryInFileRepo();
         try {
             ArrayList<Image> images = new ArrayList<Image>();
-            DirectoryListing imagesDirectory = fileService.getDirectoryListing(imagesFolderPath);
+            DirectoryListing imagesDirectory = files.getDirectoryListing(imagesFolderPath);
             for (FileItem image : imagesDirectory.getFileItems()) {
                 log.info("  Include image in repository with name \"" + image.getName() + "\"");
                 String src = getRepoUri(image.getPath());
@@ -188,13 +165,13 @@ public class ImagePlugin extends PluginActivator implements ImageService {
      */
     private String getImagesDirectoryInFileRepo() {
         String folderPath = FILEREPO_IMAGES_SUBFOLDER; // global filerepo
-        if (!fileService.pathPrefix().equals("/")) { // add workspace specific path in front of image folder name
-            folderPath = fileService.pathPrefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER;
+        if (!files.pathPrefix().equals("/")) { // add workspace specific path in front of image folder name
+            folderPath = files.pathPrefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER;
         }
         try {
             // check image file repository
-            if (fileService.fileExists(folderPath)) {
-                ResourceInfo resourceInfo = fileService.getResourceInfo(fileService.pathPrefix() + File.separator +
+            if (files.fileExists(folderPath)) {
+                ResourceInfo resourceInfo = files.getResourceInfo(files.pathPrefix() + File.separator +
                     FILEREPO_IMAGES_SUBFOLDER);
                 if (resourceInfo.getItemKind() != ItemKind.DIRECTORY) {
                     String message = "ImagePlugin: \"images\" storage directory in repo path " + folderPath + " can not be used";
@@ -203,28 +180,12 @@ public class ImagePlugin extends PluginActivator implements ImageService {
             } else { // images subdirectory does not exist yet in repo
                 log.info("Creating the \"images\" subfolder on the fly for new filerepo in " + folderPath+ "!");
                 // A (potential) workspace folder gets created no the fly, too (since #965).
-                fileService.createFolder(FILEREPO_IMAGES_SUBFOLDER, fileService.pathPrefix());
+                files.createFolder(FILEREPO_IMAGES_SUBFOLDER, files.pathPrefix());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return folderPath;
-    }
-
-    /**
-     * Returns an in-line JavaScript snippet that calls the parent CKEditor.
-     * 
-     * @param func
-     *            CKEDITOR function number.
-     * @param uri
-     *            Resource URI.
-     * @param error
-     *            Error message.
-     * @return JavaScript snippet that calls CKEditor
-     */
-    private String getCkEditorCall(Long func, String uri, String error) {
-        return "<script type='text/javascript'>" + "window.parent.CKEDITOR.tools.callFunction("
-                + func + ", '" + uri + "', '" + error + "')" + "</script>";
     }
 
     /**

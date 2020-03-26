@@ -1,10 +1,66 @@
-// configure CKEditor image upload and browsing
-dm4c.add_plugin('de.deepamehta.images', function () {
-    // config lines are the same / work with "image2" plugin as well
-    CKEDITOR.config.filebrowserImageBrowseUrl = '/de.deepamehta.images/browse.html'
-    CKEDITOR.config.filebrowserImageUploadUrl = '/images/upload/ckeditor'
+export default ({dm5, store, axios: http, Vue}) => ({
 
-    var selectedMaxSize = 300
+  init () {
+    store.dispatch("registerUploadHandler", {
+      mimeType: "PNG;JPEG;JPG;", // mimeType or file name ending in UPPERCASE, Fixme: multiple values, e.g. PNG;JPEG;JPG;
+      action: "/images/upload",
+      selected: function(file, fileList) {
+        console.log("[Images] upload dialog change selected for upload", fileList)
+      },
+      success: function(response, file, fileList) {
+        this.$store.dispatch("revealTopicById", response.id)
+        this.$notify({
+          title: 'Image Uploaded', type: 'success'
+        })
+        this.$store.dispatch("closeUploadDialog")
+      },
+      error: function(error, file, fileList) {
+        console.log("[Images] file upload error", error)
+        this.$notify.error({
+          title: 'Image File Upload Failed', message: 'Error: ' + JSON.stringify(error)
+        })
+        this.$store.dispatch("closeUploadDialog")
+      }
+    })
+  },
+  
+  components: [{
+    comp: require('./components/Resize-Dialog').default,
+    mount: 'toolbar-left'
+  }],
+
+  storeModule: {
+    name: 'images',
+    module: require('./images-store').default
+  },
+
+  contextCommands: {
+    topic: topic => {
+      if (topic.typeUri === 'dmx.files.file') {
+        // 1) Check if file topic ends on .jpg, .png oder .jpeg
+        dm5.restClient.getTopic(topic.id, true).then(response => {
+          var mediaType = response.children["dmx.files.media_type"].value
+          console.log("[Images] file with mediaType", mediaType)
+        })
+        // 2) Check if user is logged in
+        // if (topic.type_uri === 'dm4.files.file' && dm4c.restc.get_username()) {
+        let isJpgFile = (topic.value.indexOf('.jpg') !== -1) // Fixme: Do the right thing.
+        if (isJpgFile) {
+          return [{
+            label: 'Resize',
+            handler: id => {
+              store.dispatch("openResizeDialog")
+              // Todo: open resize dialog
+            }
+          }]
+        }
+      }
+    }
+  }
+  
+  /** 
+   * 
+   * var selectedMaxSize = 300
     var selectedMode = "auto"
 
     function openResizeDialog() {
@@ -60,23 +116,6 @@ dm4c.add_plugin('de.deepamehta.images', function () {
             resizeModeMenu.select("auto")
         }
     }
+   */
 
-    dm4c.add_listener('topic_commands', function (topic) {
-        // Note: create permission now managed by core
-        var commands = []
-        if (topic.type_uri === 'dm4.files.file' && dm4c.restc.get_username()) {
-            var media_type = topic.childs["dm4.files.media_type"]
-            if (media_type) {
-                if (media_type.value === "image/jpeg" || media_type.value === "image/png") {
-                    commands.push({is_separator: true, context: 'context-menu'})
-                    commands.push({
-                        label: 'Resize...',
-                        handler: openResizeDialog,
-                        context: ['context-menu', 'detail-panel-show']
-                    })
-                }
-            }
-        }
-        return commands
-    })
 })

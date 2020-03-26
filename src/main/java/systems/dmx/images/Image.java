@@ -1,9 +1,8 @@
-package de.deepamehta.images;
+package systems.dmx.images;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-
-import de.deepamehta.core.JSONEnabled;
+import systems.dmx.core.JSONEnabled;
 
 public class Image implements JSONEnabled {
 

@@ -4,36 +4,34 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <name>DeepaMehta 4 Images</name>
-    <groupId>de.deepamehta</groupId>
-    <artifactId>dm49-images</artifactId>
-    <version>0.10.0</version>
+    <name>DMX Images</name>
+    <groupId>systems.dmx</groupId>
+    <artifactId>dmx-images</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <parent>
-        <groupId>de.deepamehta</groupId>
-        <artifactId>deepamehta-plugin</artifactId>
-        <version>4.9.1</version>
+        <groupId>systems.dmx</groupId>
+        <artifactId>dmx-plugin</artifactId>
+        <version>5.0-beta-7-SNAPSHOT</version>
     </parent>
 
-    <properties>
-	<!--dm4.deploy.dir>/Users/malt/source/deepamehta/bundle-deploy</dm4.deploy.dir-->
-        <!--dm4.deploy.dir>/home/malted/Schreibtisch/DeepaMehta4/bundle-deploy</dm4.deploy.dir>
-        <dm4.deploy.dir>/home/malted/Downloads/deepamehta-4.9.1/bundle-deploy</dm4.deploy.dir-->
-    </properties>
+    <!--properties>
+        <dmx.deploy.dir>C:\cygwin64\home\MRG\source\dmx-platform\bundle-deploy</dmx.deploy.dir>
+    </properties-->
 
     <dependencies>
         <dependency>
-            <groupId>de.deepamehta</groupId>
-            <artifactId>deepamehta-files</artifactId>
-            <version>4.9.1</version>
+            <groupId>systems.dmx</groupId>
+            <artifactId>dmx-files</artifactId>
+            <version>5.0-beta-7-SNAPSHOT</version>
         </dependency>
-	<!-- http://mvnrepository.com/artifact/org.imgscalr/imgscalr-lib -->
-	<dependency>
-	    <groupId>org.imgscalr</groupId>
-	    <artifactId>imgscalr-lib</artifactId>
-	    <version>4.2</version>
-	</dependency>
+    	<!-- http://mvnrepository.com/artifact/org.imgscalr/imgscalr-lib -->
+    	<dependency>
+    	    <groupId>org.imgscalr</groupId>
+    	    <artifactId>imgscalr-lib</artifactId>
+    	    <version>4.2</version>
+    	</dependency>
     </dependencies>
 
     <build>
@@ -47,6 +45,34 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>npm-install</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm</executable>
+                            <commandlineArgs>install</commandlineArgs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-run-build</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm</executable>
+                            <commandlineArgs>run build</commandlineArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
@@ -55,10 +81,10 @@
                             imgscalr-lib
                         </Embed-Dependency>
                         <Bundle-SymbolicName>
-                            de.deepamehta.images
+                            systems.dmx.images
                         </Bundle-SymbolicName>
                         <Bundle-Activator>
-                            de.deepamehta.images.ImagePlugin
+                            systems.dmx.images.ImagePlugin
                         </Bundle-Activator>
                     </instructions>
                 </configuration>

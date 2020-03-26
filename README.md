@@ -1,33 +1,18 @@
-# DeepaMehta 4 Images
+# DMX Images
 
-Enables the browsing and upload of images while editing HTML content in [CKEditor](http://ckeditor.com/).
+Adds a "Resize" command to all _Files_ of Media Type JPEG or PNG allowing users to easily create new, derived and resized versions of their graphic file. Also hooks into the new [dmx-upload-dialog](https://github.com/mukil/dmx-upload-dialog) for handling the upload of image files into an `images` directory of the DMX Filerepo.
 
-Note: An editor can just include graphics which reside in the designated "images" folder of the respective file-repository.
-
-Since version _0.9.8_ this plugin adds a "Resize" command to all _Files_ of Media Type JPEG or PNG allowing users to easily create new, derived and resized versions of their graphic file without much hustle.
 
 ## Requirements
 
-  * [DeepaMehta 4](http://github.com/jri/deepamehta), 4.8.1 [Download](http://download.deepamehta.de)
-
-## Usage
-
-This plugin activates the [Upload](http://docs.cksource.com/CKEditor_3.x/Users_Guide/Rich_Text/Images#Upload) tab
-and the [Browse Server](http://docs.cksource.com/CKEditor_3.x/Users_Guide/Rich_Text/Images#Link) button of CKEditor.
-
-Note: As of DeepaMehta 4.7 there may be many file-repositories, one for each workspace. If configured like that, the dm4-images plugin always works with the workspace currently selected in the _Workspace_ menu (in the dm4-webclient).
-
-![upload tab](https://github.com/dgf/dm4-images/raw/master/doc/upload.png)
-
-Note: Every (via ck-editor) uploaded file is stored in the *images* directory.
-
-![file topics map](https://github.com/dgf/dm4-images/raw/master/doc/screenshot.png)
-
-This directory is also the base of the image browser that pops up after a click on *Browse Server*
-
-![browse server](https://github.com/dgf/dm4-images/raw/master/doc/browse.png)
+  * [DMX](http://github.com/jri/deepamehta), 5.0-beta-7 [Download](http://download.dmx.systems)
 
 ## Release Notes
+
+**1.0.0** -- UPCOMING
+
+* Adapted backend to DMX 5.0-beta-7
+* Rewritten webclient extension as vue-component
 
 **0.9.10** -- Jul 03, 2016
 
@@ -44,5 +29,7 @@ Since 0.9.8 (14 June 2016) this bundle integrates the [imgscalr library](https:/
 
 ## Authors
 
-Danny Graf and Malte Reißig 2012-2016
+Malte Reißig 2013-2020
+Danny Graf and 2012-2013
+
 
