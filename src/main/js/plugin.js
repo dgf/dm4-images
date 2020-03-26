@@ -2,7 +2,7 @@ export default ({dm5, store, axios: http, Vue}) => ({
 
   init () {
     store.dispatch("registerUploadHandler", {
-      mimeType: "PNG;JPEG;JPG;", // mimeType or file name ending in UPPERCASE, Fixme: multiple values, e.g. PNG;JPEG;JPG;
+      mimeType: "JPG", // mimeType or file name ending in UPPERCASE, Fixme: multiple values, e.g. PNG;JPEG;JPG;
       action: "/images/upload",
       selected: function(file, fileList) {
         console.log("[Images] upload dialog change selected for upload", fileList)
@@ -40,16 +40,17 @@ export default ({dm5, store, axios: http, Vue}) => ({
         // 1) Check if file topic ends on .jpg, .png oder .jpeg
         dm5.restClient.getTopic(topic.id, true).then(response => {
           var mediaType = response.children["dmx.files.media_type"].value
-          console.log("[Images] file with mediaType", mediaType)
+          console.log("[Images] Debug file, has mediaType", mediaType)
         })
-        // 2) Check if user is logged in
-        // if (topic.type_uri === 'dm4.files.file' && dm4c.restc.get_username()) {
+        // 2) Todo: Check if user is logged in
         let isJpgFile = (topic.value.indexOf('.jpg') !== -1) // Fixme: Do the right thing.
-        if (isJpgFile) {
+        let isJpegFile = (topic.value.indexOf('.jpeg') !== -1) // Fixme: Do the right thing.
+        let isPngFile = (topic.value.indexOf('.png') !== -1) // Fixme: Do the right thing.
+        if (isJpgFile | isJpegFile || isPngFile) {
           return [{
             label: 'Resize',
             handler: id => {
-              store.dispatch("openResizeDialog")
+              store.dispatch("openResizeDialog", topic)
               // Todo: open resize dialog
             }
           }]

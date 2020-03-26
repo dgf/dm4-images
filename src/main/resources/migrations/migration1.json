@@ -1,5 +1,5 @@
 {
-    "assoc_types": [
+    "assocTypes": [
         {
             "value":            "Resized Image",
             "uri":              "dmx.images.resized_image",

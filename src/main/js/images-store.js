@@ -1,15 +1,15 @@
 const state = {
-  resizeDialogVisible: false
+  resizeDialogVisible: false,
+  topic: undefined
 }
 
 const actions = {
 
-  openResizeDialog() {
+  openResizeDialog({state}, topic) {
     state.resizeDialogVisible = true
-    console.log("[Images] resizeDialog set to visible")
+    state.topic = topic
   },
   closeResizeDialog() {
-    console.log("[Images] dispatching resizeDialog")
     state.resizeDialogVisible = false
   }
 

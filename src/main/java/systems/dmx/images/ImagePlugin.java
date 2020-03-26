@@ -12,6 +12,8 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.Response;
 import org.imgscalr.Scalr;
+import systems.dmx.core.Assoc;
+import systems.dmx.core.Constants;
 import systems.dmx.core.Topic;
 import systems.dmx.core.osgi.PluginActivator;
 import systems.dmx.core.service.Inject;
@@ -35,7 +37,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
 
     public static final String FILEREPO_BASE_URI_NAME       = "filerepo";
     public static final String FILEREPO_IMAGES_SUBFOLDER    = "images";
-    public static final String DM4_HOST_URL = System.getProperty("dm4.host.url");
+    public static final String DM4_HOST_URL = System.getProperty("dmx.host.url");
 
     @Inject private FilesService files;
 
@@ -74,8 +76,8 @@ public class ImagePlugin extends PluginActivator implements ImageService {
             File fileTopicFile = files.getFile(fileTopicId);
             String fileTopicFileName = fileTopicFile.getName();
             Topic fileTopic = dmx.getTopic(fileTopicId).loadChildTopics();
-            String fileTopicRepositoryPath = fileTopic.getChildTopics().getString("dm4.files.path");
-            String fileMediaType = fileTopic.getChildTopics().getString("dm4.files.media_type");
+            String fileTopicRepositoryPath = fileTopic.getChildTopics().getString("dmx.files.path");
+            String fileMediaType = fileTopic.getChildTopics().getString("dmx.files.media_type");
             if (fileMediaType.contains("jpeg") || fileMediaType.contains("jpg") || fileMediaType.contains("png")) {
                 log.info("Image File Topic Path requested to be RESIZED: " + fileTopicRepositoryPath);
                 BufferedImage srcImage = ImageIO.read(fileTopicFile); // Load image
@@ -96,6 +98,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
                     ImageIO.write(scaledImage, imageFileEnding, resizedImageFile);
                     log.info("Resized Image File \"" + resizedImageFile.getAbsolutePath() + "\" CREATED");
                 } else {
+                    // Fixme: Why is that? Does imgscalr only handle "jpeg"?
                     if (imageFileEnding.equals("jpg")) imageFileEnding = "jpeg";
                     ImageIO.write(scaledImage, imageFileEnding, resizedImageFile);
                     log.warning("Image File already exists \"" + resizedImageFile.getPath() + "\" - REWRITE");
@@ -123,13 +126,23 @@ public class ImagePlugin extends PluginActivator implements ImageService {
     }
 
     private String getParentFolderRepositoryPath(String fileTopicRepositoryPath) {
-        return fileTopicRepositoryPath.substring(0, fileTopicRepositoryPath.lastIndexOf("/"));
+        String pathSeperator = "/";
+        if (System.getProperty("os.name").contains("Win")) {
+            log.info("Lookup parent folder on " + System.getProperty("os.name") + " using \\");
+            pathSeperator = "\\";
+        }
+        return fileTopicRepositoryPath.substring(0, fileTopicRepositoryPath.lastIndexOf(pathSeperator));
     }
 
     private void createResizedImageAssociation(Topic original, Topic resized) {
-        dmx.createAssoc(mf.newAssocModel("dm4.images.resized_image",
-                mf.newTopicPlayerModel(original.getId(), "dm4.core.parent"),
-                mf.newTopicPlayerModel(resized.getId(), "dm4.core.child")));
+        Assoc exists = original.getAssoc("dmx.images.resized_image", null, null, resized.getId());
+        if (exists == null) {
+            dmx.createAssoc(mf.newAssocModel("dmx.images.resized_image",
+                mf.newTopicPlayerModel(original.getId(), Constants.PARENT),
+                mf.newTopicPlayerModel(resized.getId(), Constants.CHILD)));
+        } else {
+            log.info("Resize Image Notice: Rewrote the image files contents but did not create a new file topic");
+        }
     }
 
     /**
@@ -190,7 +203,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
 
     /**
      * Returns an external accessible file repository URI of path based on the
-     * <code>dm4.host.url</code> platform configuration option.
+     * <code>dmx.host.url</code> platform configuration option.
      * 
      * @param path
      *            Relative path of a file repository resource.
