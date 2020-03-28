@@ -1,12 +1,12 @@
 {
-    "assocTypes": [
+    "assoc_types": [
         {
             "value":            "Resized Image",
             "uri":              "dmx.images.resized_image",
             "dataTypeUri":      "dmx.core.text",
             "viewConfigTopics": [
                 {
-                    "typeUri": "dm4.webclient.view_config",
+                    "typeUri": "dmx.webclient.view_config",
                     "children": {
                         "dmx.webclient.color": "#9366c9"
                     }

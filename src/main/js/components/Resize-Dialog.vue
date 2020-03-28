@@ -1,34 +1,28 @@
 <template>
 
-    <div v-if="dialogVisible">
-        <el-dialog :close="listenClose" visible="true" title="Resize Image"
-            width="30%" :show-close="false">
-          <span>Mode to resize image with:</span>
-          <div class="block">
-            <el-radio v-model="resizeMode" label="width">Fit to Width</el-radio>
-            <el-radio v-model="resizeMode" label="height">Fit to Height</el-radio>
-            <el-radio v-model="resizeMode" label="auto">Auto</el-radio>
-          </div>
-          <!--div class="block">
-            <span>Fit to:</span>
-              <el-slider v-model="widthValues" :marks="marks" show-stops></el-slider>
-          </div-->
-          <div class="block">
-            <span>Fit to:</span><br/>
-            <el-select v-model="widthOption" placeholder="Select">
-              <el-option v-for="item in widthOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
-          </div>
-          <span slot="footer" class="dialog-footer">
-            <el-button @click="closeDialog">Cancel</el-button>
-            <el-button type="primary" @click="confirmResize">Resize</el-button>
-          </span>
-        </el-dialog>
-    </div>
+    <el-dialog v-if="dialogVisible" visible="true" :close="listenClose" width="30%" :show-close="false">
+      <h2>Image Resize</h2>
+      <h3>Resize Mode</h3>
+      <div class="block">
+        <el-radio v-model="resizeMode" label="width">Fit to Width</el-radio>
+        <el-radio v-model="resizeMode" label="height">Fit to Height</el-radio>
+        <el-radio v-model="resizeMode" label="auto">Auto</el-radio>
+      </div>
+      <h3>Fit to</h3>
+      <div class="block">
+        <el-select v-model="widthOption" placeholder="Select">
+          <el-option v-for="item in widthOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="closeDialog">Cancel</el-button>
+        <el-button type="primary" @click="confirmResize">Resize Image</el-button>
+      </span>
+    </el-dialog>
 
 </template>
 
