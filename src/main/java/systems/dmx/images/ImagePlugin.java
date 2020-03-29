@@ -14,6 +14,8 @@ import javax.ws.rs.core.Response;
 import org.imgscalr.Scalr;
 import systems.dmx.core.Assoc;
 import systems.dmx.core.Constants;
+import static systems.dmx.core.Constants.DEFAULT;
+import systems.dmx.core.RelatedTopic;
 import systems.dmx.core.Topic;
 import systems.dmx.core.osgi.PluginActivator;
 import systems.dmx.core.service.Inject;
@@ -28,7 +30,7 @@ import systems.dmx.files.StoredFile;
 import systems.dmx.files.UploadedFile;
 
 /**
- * CKEditor compatible resources for image upload and browse.
+ * DMX Plugin to handle image uploads and resize images.
  */
 @Path("/images")
 public class ImagePlugin extends PluginActivator implements ImageService {
@@ -38,6 +40,8 @@ public class ImagePlugin extends PluginActivator implements ImageService {
     public static final String FILEREPO_BASE_URI_NAME       = "filerepo";
     public static final String FILEREPO_IMAGES_SUBFOLDER    = "images";
     public static final String DM4_HOST_URL = System.getProperty("dmx.host.url");
+
+    public static final String RESIZED_IMAGE = RESIZED_IMAGE;
 
     @Inject private FilesService files;
 
@@ -134,15 +138,16 @@ public class ImagePlugin extends PluginActivator implements ImageService {
         return fileTopicRepositoryPath.substring(0, fileTopicRepositoryPath.lastIndexOf(pathSeperator));
     }
 
-    private void createResizedImageAssociation(Topic original, Topic resized) {
-        Assoc exists = original.getAssoc("dmx.images.resized_image", null, null, resized.getId());
+    private Assoc createResizedImageAssociation(Topic original, Topic resized) {
+        Assoc exists = original.getAssoc(RESIZED_IMAGE, null, null, resized.getId());
         if (exists == null) {
-            dmx.createAssoc(mf.newAssocModel("dmx.images.resized_image",
+            exists = dmx.createAssoc(mf.newAssocModel(RESIZED_IMAGE,
                 mf.newTopicPlayerModel(original.getId(), Constants.PARENT),
                 mf.newTopicPlayerModel(resized.getId(), Constants.CHILD)));
         } else {
             log.info("Resize Image Notice: Rewrote the image files contents but did not create a new file topic");
         }
+        return exists;
     }
 
     /**

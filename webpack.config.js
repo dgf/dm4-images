@@ -1,6 +1,7 @@
 const PLUGIN_URI = 'systems.dmx.images'
 
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { VueLoaderPlugin }  = require('vue-loader')
 
 module.exports = {
@@ -26,12 +27,20 @@ module.exports = {
         test: /\.js$/,
         loader: 'babel-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.css$/,
+        loader: [MiniCssExtractPlugin.loader, 'css-loader']
       }
     ]
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
+	new MiniCssExtractPlugin({
+      filename: '[contenthash].style.css',
+      chunkFilename: '[chunkhash].[name].css',
+    })
   ],
   stats: {
     entrypoints: false

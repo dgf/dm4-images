@@ -47,8 +47,16 @@
                     label: "300px"
                 },
                 {
+                    value: 420,
+                    label: "420px"
+                },
+                {
                     value: 540,
                     label: "540px"
+                },
+                {
+                    value: 600,
+                    label: "600px"
                 },
                 {
                     value: 720,
@@ -59,26 +67,26 @@
                     label: "900px"
                 },
                 {
+                    value: 1000,
+                    label: "1000px"
+                },
+                {
+                    value: 1200,
+                    label: "1200px"
+                },
+                {
                     value: 1400,
                     label: "1400px"
+                },
+                {
+                    value: 1600,
+                    label: "1600px"
+                },
+                {
+                    value: 2000,
+                    label: "2000px"
                 }
-            ],
-            marks: {
-                90: "90px",
-                160: "160px",
-                300: "300px", 
-                420: "420px",
-                540: "540px",
-                600: "600px",
-                720: "720px",
-                900: "900px",
-                1000: "1000px",
-                1200: "1200px",
-                1400: "1400px",
-                1600: "1600px",
-                2000: "2000px"
-            },
-            widthValues: [ 90, 160, 300, 420, 540, 600, 720, 900, 1000, 1200, 1400, 1600, 2000 ]
+            ]
         }
     },
     computed: {
@@ -91,17 +99,16 @@
     },
     methods: {
       confirmResize() {
-        // ### do resize
         console.log("[Images] Resize Parameter", this.widthOption, this.resizeMode, "Image File", this.file.value)
         this.http.post('/images/resize/' + this.file.id + '/' + this.widthOption + '/' + this.resizeMode)
         .then(response => {
-            this.$store.dispatch("revealTopicById", response.data.id) // fixme: find name of action to reveal topic with the relating assoc
+            this.$store.dispatch("revealTopicById", response.data.id)
             this.$notify({
               title: 'Image Resized', type: 'success'
             })
             this.$store.dispatch("closeResizeDialog")
         }).catch(response => {
-            console.warn("[Images] Resize operation failed", response)
+            console.warn("[Images] Resize operation failed", response.data)
         })
       },
       listenClose() {
