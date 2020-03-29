@@ -1,15 +1,13 @@
 <template>
 
-    <el-dialog v-if="dialogVisible" visible="true" :close="listenClose" width="30%" :show-close="false">
-      <h2>Image Resize</h2>
-      <h3>Resize Mode</h3>
+    <el-dialog :visible="dialogVisible" class="dmx-images" @close="listenClose" width="400px" title="Image Resize">
       <div class="block">
         <el-radio v-model="resizeMode" label="width">Fit to Width</el-radio>
         <el-radio v-model="resizeMode" label="height">Fit to Height</el-radio>
         <el-radio v-model="resizeMode" label="auto">Auto</el-radio>
       </div>
-      <h3>Fit to</h3>
       <div class="block">
+        <label>Size</label>
         <el-select v-model="widthOption" placeholder="Select">
           <el-option v-for="item in widthOptions"
             :key="item.value"
@@ -115,3 +113,19 @@
     }
   }
 </script>
+<style>
+.dmx-images .block {
+    margin-top: 1em;
+}
+.dmx-images .el-dialog__body {
+    padding-top: 0px !important;
+}
+.dmx-images .el-dialog__title {
+    font-size: 1.2em !important;
+    font-weight: 700;
+}
+.dmx-images .el-dialog__body h3 {
+    margin-top: 1em;
+    margin-bottom: .5em;
+}
+</style>

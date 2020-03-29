@@ -5,7 +5,7 @@ export default ({dm5, store, axios: http, Vue}) => ({
       mimeTypes: ["image/png", "image/jpg", "image/jpeg"],
       action: "/images/upload",
       selected: function(file, fileList) {
-        console.log("[Images] upload dialog change selected for upload", fileList)
+        console.log("[Images] upload dialog change selected for upload", file)
       },
       success: function(response, file, fileList) {
         this.$store.dispatch("revealTopicById", response.id)
@@ -26,7 +26,7 @@ export default ({dm5, store, axios: http, Vue}) => ({
   
   components: [{
     comp: require('./components/Resize-Dialog').default,
-    mount: 'toolbar-left'
+    mount: 'webclient'
   }],
 
   storeModule: {
