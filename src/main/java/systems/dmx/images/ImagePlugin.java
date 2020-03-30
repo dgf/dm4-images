@@ -41,7 +41,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
     public static final String FILEREPO_IMAGES_SUBFOLDER    = "images";
     public static final String DM4_HOST_URL = System.getProperty("dmx.host.url");
 
-    public static final String RESIZED_IMAGE = RESIZED_IMAGE;
+    public static final String RESIZED_IMAGE = "dmx.images.resized_image";
 
     @Inject private FilesService files;
 
