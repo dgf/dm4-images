@@ -1,6 +1,7 @@
 package systems.dmx.images;
 
 import systems.dmx.core.Topic;
+import systems.dmx.core.model.RelatedTopicModel;
 
 /**
  *
@@ -17,6 +18,6 @@ public interface ImageService {
      * fitTo    String      Either "width", or "height", otherwise "auto" is used.
      * @return  Topic   A new file topic representing the resized image.
      */
-    Topic resizeImageFileTopic(long fileTopicId, int maxSize, String fitTo);
+    RelatedTopicModel resizeImageFileTopic(long fileTopicId, int maxSize, String fitTo);
 
 }

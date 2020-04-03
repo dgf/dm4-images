@@ -14,9 +14,9 @@ import javax.ws.rs.core.Response;
 import org.imgscalr.Scalr;
 import systems.dmx.core.Assoc;
 import systems.dmx.core.Constants;
-import static systems.dmx.core.Constants.DEFAULT;
 import systems.dmx.core.RelatedTopic;
 import systems.dmx.core.Topic;
+import systems.dmx.core.model.RelatedTopicModel;
 import systems.dmx.core.osgi.PluginActivator;
 import systems.dmx.core.service.Inject;
 import systems.dmx.core.service.Transactional;
@@ -73,7 +73,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     @Override
-    public Topic resizeImageFileTopic(@PathParam("topicId") long fileTopicId, @PathParam("maxSize") int maxSize,
+    public RelatedTopicModel resizeImageFileTopic(@PathParam("topicId") long fileTopicId, @PathParam("maxSize") int maxSize,
             @PathParam("mode") String mode) {
         log.info("File Topic to Resize (ID: " + fileTopicId + ") Max Size: " + maxSize + "px");
         try {
@@ -111,8 +111,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
                 Topic resizedImageFileTopic = files.getFileTopic(
                     imageFileTopicParentRepositoryPath + File.separator + newFileName);
                 // Associate new file topic with original file topic
-                createResizedImageAssociation(fileTopic, resizedImageFileTopic);
-                return resizedImageFileTopic;
+                return createResizedImageAssociation(fileTopic, resizedImageFileTopic);
             } else {
                 throw new WebApplicationException(new RuntimeException("Sorry! At the moment we can "
                     + "only resize JPGs or PNGs and not file topics with MediaType: " + fileMediaType),
@@ -138,7 +137,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
         return fileTopicRepositoryPath.substring(0, fileTopicRepositoryPath.lastIndexOf(pathSeperator));
     }
 
-    private Assoc createResizedImageAssociation(Topic original, Topic resized) {
+    private RelatedTopicModel createResizedImageAssociation(Topic original, Topic resized) {
         Assoc exists = original.getAssoc(RESIZED_IMAGE, null, null, resized.getId());
         if (exists == null) {
             exists = dmx.createAssoc(mf.newAssocModel(RESIZED_IMAGE,
@@ -147,7 +146,9 @@ public class ImagePlugin extends PluginActivator implements ImageService {
         } else {
             log.info("Resize Image Notice: Rewrote the image files contents but did not create a new file topic");
         }
-        return exists;
+        return mf.newRelatedTopicModel(
+            resized.getModel(), exists.getModel()
+        );
     }
 
     /**
