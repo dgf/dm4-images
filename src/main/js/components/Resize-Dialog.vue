@@ -27,7 +27,8 @@
 <script>
   export default {
     inject: {
-      http: 'axios'
+      http: 'axios',
+      dm5: 'dm5'
     },
     data () {
         return {
@@ -102,13 +103,13 @@
         console.log("[Images] Resize Parameter", this.widthOption, this.resizeMode, "Image File", this.file.value)
         this.http.post('/images/resize/' + this.file.id + '/' + this.widthOption + '/' + this.resizeMode)
         .then(response => {
-            this.$store.dispatch("revealTopicById", response.data.id)
+            this.$store.dispatch("revealRelatedTopic", {relTopic: new this.dm5.RelatedTopic(response.data), noSelect: false})
             this.$notify({
               title: 'Image Resized', type: 'success'
             })
             this.$store.dispatch("closeResizeDialog")
         }).catch(response => {
-            console.warn("[Images] Resize operation failed", response.data)
+            console.warn("[Images] Resize operation failed", response)
         })
       },
       listenClose() {
