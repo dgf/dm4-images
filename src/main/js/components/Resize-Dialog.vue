@@ -1,6 +1,6 @@
 <template>
 
-    <el-dialog :visible="dialogVisible" class="dmx-images" @close="listenClose" width="400px" title="Image Resize">
+    <el-dialog :visible="dialogVisible" custom-class="dmx-images" @close="listenClose" width="400px" title="Image Resize">
       <div class="block">
         <el-radio v-model="resizeMode" label="width">Fit to Width</el-radio>
         <el-radio v-model="resizeMode" label="height">Fit to Height</el-radio>

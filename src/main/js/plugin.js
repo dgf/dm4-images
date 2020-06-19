@@ -37,6 +37,7 @@ export default ({dm5, store, axios: http, Vue}) => ({
   contextCommands: {
     topic: topic => {
       if (topic.typeUri === 'dmx.files.file') {
+        // Fixme: Use hasWrite access instead of relying logged in (e.g. files in a `Common` workspace)
         let isLoggedIn = (store.state.accesscontrol.username)
         let isJpgFile = (topic.value.indexOf('.jpg') !== -1) // Fixme: Do the right thing.
         let isJpegFile = (topic.value.indexOf('.jpeg') !== -1) // Fixme: Do the right thing.
