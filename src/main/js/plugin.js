@@ -24,6 +24,10 @@ export default ({dm5, store, axios: http, Vue}) => ({
     })
   },
   
+  objectRenderers: {
+    'dmx.files.file': require('./components/dmx-images-file-renderer').default
+  },
+  
   components: [{
     comp: require('./components/Resize-Dialog').default,
     mount: 'webclient'
