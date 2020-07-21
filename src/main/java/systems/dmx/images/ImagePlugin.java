@@ -14,7 +14,6 @@ import javax.ws.rs.core.Response;
 import org.imgscalr.Scalr;
 import systems.dmx.core.Assoc;
 import systems.dmx.core.Constants;
-import systems.dmx.core.RelatedTopic;
 import systems.dmx.core.Topic;
 import systems.dmx.core.model.RelatedTopicModel;
 import systems.dmx.core.osgi.PluginActivator;
@@ -63,8 +62,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
             String path = imagesFolderPath + File.separator + file.getFileName();
             return files.getFileTopic(path);
         } catch (Exception e) {
-            log.severe(e.getMessage() + ", caused by " + e.getCause().getMessage());
-            return null;
+            throw new RuntimeException("Uploading IMAGE file \"" + image.getName() + "\" FAILED", e);
         }
     }
 
@@ -124,14 +122,14 @@ public class ImagePlugin extends PluginActivator implements ImageService {
 
     private String calculateResizedFilename(String originalFilename, String sizeParameter) {
         String imageFileEnding = originalFilename.substring(originalFilename.indexOf(".") + 1);
-        String imageFileBeginning = originalFilename.substring(originalFilename.lastIndexOf("/") + 1, originalFilename.indexOf("."));
+        String imageFileBeginning = originalFilename.substring(originalFilename.lastIndexOf(File.separator) + 1, originalFilename.indexOf("."));
         return imageFileBeginning + "-" + sizeParameter + "px." + imageFileEnding;
     }
 
     private String getParentFolderRepositoryPath(String fileTopicRepositoryPath) {
-        String pathSeperator = "/";
+        String pathSeperator = File.separator;
         if (System.getProperty("os.name").contains("Win")) {
-            log.info("Lookup parent folder on " + System.getProperty("os.name") + " using \\");
+            log.info("Lookup parent folder on " + System.getProperty("os.name") + " escaping the File seperator \\");
             pathSeperator = "\\";
         }
         return fileTopicRepositoryPath.substring(0, fileTopicRepositoryPath.lastIndexOf(pathSeperator));
@@ -184,7 +182,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
      */
     private String getImagesDirectoryInFileRepo() {
         String folderPath = FILEREPO_IMAGES_SUBFOLDER; // global filerepo
-        if (!files.pathPrefix().equals("/")) { // add workspace specific path in front of image folder name
+        if (!files.pathPrefix().equals(File.separator)) { // add workspace specific path in front of image folder name
             folderPath = files.pathPrefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER;
         }
         try {
@@ -198,7 +196,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
                 }
             } else { // images subdirectory does not exist yet in repo
                 log.info("Creating the \"images\" subfolder on the fly for new filerepo in " + folderPath+ "!");
-                // A (potential) workspace folder gets created no the fly, too (since #965).
+                // A (potential) workspace folder gets created on the fly, too (since #965).
                 files.createFolder(FILEREPO_IMAGES_SUBFOLDER, files.pathPrefix());
             }
         } catch (Exception e) {
