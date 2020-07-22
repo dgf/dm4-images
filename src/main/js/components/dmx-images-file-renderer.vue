@@ -1,7 +1,7 @@
 <template>
   <div class="dmx-images-file-renderer" v-if="infoMode">
     <div v-if="isImage">
-        <img :id="topicId" :src="'/filerepo/' + filePath"/>
+        <img :id="topicId" @onload="imageLoaded" :src="'/filerepo/' + filePath"/>
         <!--div class="image-caption"><div class="label">File Path</div> {{filePath}}</div-->
         <dm5-value-renderer class="details" :noHeading="true" :object="object" :path="[]" :level="0" :context="context"></dm5-value-renderer>
     </div>
@@ -14,10 +14,6 @@
 
 <script>
 export default {
-
-  created () {
-    console.log('dmx-images-file-renderer created', this.object.children["dmx.files.media_type"].value)
-  },
 
   props: ["object", "context"],
 
@@ -40,6 +36,13 @@ export default {
     isImage () {
         let mediaType = this.object.children["dmx.files.media_type"].value
         return mediaType.startsWith("image")
+    }
+  },
+
+  methods: {
+    imageLoaded() {
+      console.log("imageLoaded", this)
+      this.context.updated()
     }
   }
 }
