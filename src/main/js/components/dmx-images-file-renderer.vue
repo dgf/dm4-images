@@ -30,12 +30,12 @@ export default {
     filePath () {
         return this.object.children["dmx.files.path"].value
     },
-    mediaType () {
-        return this.object.children["dmx.files.media_type"].value
-    },
     isImage () {
-        let mediaType = this.object.children["dmx.files.media_type"].value
-        return mediaType.startsWith("image")
+        if (typeof this.object.children["dmx.files.media_type"] !== "undefined") {
+            let mediaType = this.object.children["dmx.files.media_type"].value
+            return mediaType.startsWith("image")
+        }
+        return false
     }
   },
 
