@@ -5,6 +5,13 @@
         <!--div class="image-caption"><div class="label">File Path</div> {{filePath}}</div-->
         <dm5-value-renderer class="details" :noHeading="true" :object="object" :path="[]" :level="0" :context="context"></dm5-value-renderer>
     </div>
+    <div v-else-if="isVideo">
+        <video :id="topicId" controls muted>
+            <source :src="'/filerepo/' + filePath"/ :type="mediaType" />
+            <p>Your browser doesn't support HTML5 video. Here is a <a :href="'/filerepo/' + filePath">link to the video</a> instead.</p>
+        </video>
+        <dm5-value-renderer class="details" :noHeading="true" :object="object" :path="[]" :level="0" :context="context"></dm5-value-renderer>
+    </div>
     <dm5-value-renderer v-else :noHeading="true" :object="object" :path="[]" :level="0" :context="context"></dm5-value-renderer>
   </div>
   <div v-else>
@@ -28,14 +35,19 @@ export default {
         return this.mode === "info"
     },
     filePath () {
-        return this.object.children["dmx.files.path"].value
+        return encodeURIComponent(this.object.children["dmx.files.path"].value)
     },
     isImage () {
+        return this.mediaType.startsWith("image/")
+    },
+    mediaType () {
         if (typeof this.object.children["dmx.files.media_type"] !== "undefined") {
-            let mediaType = this.object.children["dmx.files.media_type"].value
-            return mediaType.startsWith("image")
+            return this.object.children["dmx.files.media_type"].value
         }
-        return false
+        return ""
+    },
+    isVideo () {
+        return this.mediaType.startsWith("video/")
     }
   },
 

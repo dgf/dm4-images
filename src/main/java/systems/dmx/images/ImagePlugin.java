@@ -59,7 +59,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
         log.info("Upload image " + image.getName() + " to filerepo folder=" + imagesFolderPath);
         try {
             StoredFile file = files.storeFile(image, imagesFolderPath);
-            String path = imagesFolderPath + File.separator + file.getFileName();
+            String path = imagesFolderPath + "/" + file.getFileName();
             return files.getFileTopic(path);
         } catch (Exception e) {
             throw new RuntimeException("Uploading IMAGE file \"" + image.getName() + "\" FAILED", e);
@@ -95,7 +95,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
                 String imageFileEnding = fileTopicFileName.substring(fileTopicFileName.indexOf(".") + 1);
                 String imageFileTopicParentRepositoryPath = getParentFolderRepositoryPath(fileTopicRepositoryPath);
                 String newFileName = calculateResizedFilename(fileTopicFileName, maxSize + "");
-                File resizedImageFile = new File(fileTopicFile.getParent() + File.separator + newFileName);
+                File resizedImageFile = new File(fileTopicFile.getParent() + "/" + newFileName);
                 if (resizedImageFile.createNewFile()) {
                     ImageIO.write(scaledImage, imageFileEnding, resizedImageFile);
                     log.info("Resized Image File \"" + resizedImageFile.getAbsolutePath() + "\" CREATED");
@@ -107,7 +107,7 @@ public class ImagePlugin extends PluginActivator implements ImageService {
                 }
                 // Create File topic for newly created file
                 Topic resizedImageFileTopic = files.getFileTopic(
-                    imageFileTopicParentRepositoryPath + File.separator + newFileName);
+                    imageFileTopicParentRepositoryPath + "/" + newFileName);
                 // Associate new file topic with original file topic
                 return createResizedImageAssociation(fileTopic, resizedImageFileTopic);
             } else {
@@ -122,16 +122,16 @@ public class ImagePlugin extends PluginActivator implements ImageService {
 
     private String calculateResizedFilename(String originalFilename, String sizeParameter) {
         String imageFileEnding = originalFilename.substring(originalFilename.indexOf(".") + 1);
-        String imageFileBeginning = originalFilename.substring(originalFilename.lastIndexOf(File.separator) + 1, originalFilename.indexOf("."));
+        String imageFileBeginning = originalFilename.substring(originalFilename.lastIndexOf("/") + 1, originalFilename.indexOf("."));
         return imageFileBeginning + "-" + sizeParameter + "px." + imageFileEnding;
     }
 
     private String getParentFolderRepositoryPath(String fileTopicRepositoryPath) {
-        String pathSeperator = File.separator;
-        if (System.getProperty("os.name").contains("Win")) {
+        String pathSeperator = "/";
+        /** if (System.getProperty("os.name").contains("Win")) {
             log.info("Lookup parent folder on " + System.getProperty("os.name") + " escaping the File seperator \\");
             pathSeperator = "\\";
-        }
+        } **/
         return fileTopicRepositoryPath.substring(0, fileTopicRepositoryPath.lastIndexOf(pathSeperator));
     }
 
@@ -182,14 +182,13 @@ public class ImagePlugin extends PluginActivator implements ImageService {
      */
     private String getImagesDirectoryInFileRepo() {
         String folderPath = FILEREPO_IMAGES_SUBFOLDER; // global filerepo
-        if (!files.pathPrefix().equals(File.separator)) { // add workspace specific path in front of image folder name
-            folderPath = files.pathPrefix() + File.separator + FILEREPO_IMAGES_SUBFOLDER;
+        if (!files.pathPrefix().equals("/")) { // add workspace specific path in front of image folder name
+            folderPath = files.pathPrefix() + "/" + FILEREPO_IMAGES_SUBFOLDER;
         }
         try {
             // check image file repository
             if (files.fileExists(folderPath)) {
-                ResourceInfo resourceInfo = files.getResourceInfo(files.pathPrefix() + File.separator +
-                    FILEREPO_IMAGES_SUBFOLDER);
+                ResourceInfo resourceInfo = files.getResourceInfo(files.pathPrefix() + "/" + FILEREPO_IMAGES_SUBFOLDER);
                 if (resourceInfo.getItemKind() != ItemKind.DIRECTORY) {
                     String message = "ImagePlugin: \"images\" storage directory in repo path " + folderPath + " can not be used";
                     throw new IllegalStateException(message);
