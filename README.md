@@ -14,9 +14,9 @@ For uploading image files this plugin relies and extends the [dmx-upload-dialog]
 
 **1.1.0** -- UPCOMING
 
-* Displays images in-map and in detail panel
+* Displays images in-map and in detail panel (https://github.com/mukil/dmx-images/issues/4)
 * Embed video files in-map and in detail panel (muted with controls) 
-* Works with platform config `per_workspace_repo=true` (#5)
+* Works with platform config `per_workspace_repo=true` (https://github.com/mukil/dmx-images/issues/5)
 
 **1.0.0** -- Jun 19, 2020
 
