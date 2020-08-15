@@ -8,11 +8,11 @@ For uploading image files this plugin relies and extends the [dmx-upload-dialog]
 
 ## Requirements
 
-  * [DMX](http://github.com/jri/deepamehta), 5.0, Upcoming
+  * [DMX](http://github.com/jri/deepamehta), 5.0
 
 ## Release Notes
 
-**1.1.0** -- UPCOMING
+**1.1.0** -- Aug 15, 2020
 
 * Displays images in-map and in detail panel (https://github.com/mukil/dmx-images/issues/4)
 * Embed video files in-map and in detail panel (muted with controls) 
