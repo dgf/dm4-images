@@ -3,19 +3,19 @@
     <div v-if="isImage">
         <img :id="topicId" @onload="imageLoaded" :src="'/filerepo/' + filePath"/>
         <!--div class="image-caption"><div class="label">File Path</div> {{filePath}}</div-->
-        <dm5-value-renderer class="details" :noHeading="true" :object="object" :path="[]" :level="0" :context="context"></dm5-value-renderer>
+        <dmx-value-renderer class="details" :noHeading="true" :object="object" :path="[]" :level="0" :context="context"></dmx-value-renderer>
     </div>
     <div v-else-if="isVideo">
         <video :id="topicId" controls muted>
             <source :src="'/filerepo/' + filePath"/ :type="mediaType" />
             <p>Your browser doesn't support HTML5 video. Here is a <a :href="'/filerepo/' + filePath">link to the video</a> instead.</p>
         </video>
-        <dm5-value-renderer class="details" :noHeading="true" :object="object" :path="[]" :level="0" :context="context"></dm5-value-renderer>
+        <dmx-value-renderer class="details" :noHeading="true" :object="object" :path="[]" :level="0" :context="context"></dmx-value-renderer>
     </div>
-    <dm5-value-renderer v-else :noHeading="true" :object="object" :path="[]" :level="0" :context="context"></dm5-value-renderer>
+    <dmx-value-renderer v-else :noHeading="true" :object="object" :path="[]" :level="0" :context="context"></dmx-value-renderer>
   </div>
   <div v-else>
-    <dm5-value-renderer :noHeading="true" :object="object" :path="[]" :level="0" :context="context"></dm5-value-renderer>
+    <dmx-value-renderer :noHeading="true" :object="object" :path="[]" :level="0" :context="context"></dmx-value-renderer>
   </div>
 </template>
 
@@ -60,17 +60,17 @@ export default {
 }
 </script>
 <style>
-/** .dm5-cytoscape-renderer .dm5-detail-layer .dmx-images-file-renderer.dm5-object-renderer {
+/** .dmx-cytoscape-renderer .dmx-detail-layer .dmx-images-file-renderer.dmx-object-renderer {
     margin-top: 0px;
 } **/
-.dm5-cytoscape-renderer .dm5-detail-layer .dmx-images-file-renderer img {
+.dmx-cytoscape-renderer .dmx-detail-layer .dmx-images-file-renderer img {
     max-width: 350px;
 }
 .dmx-images-file-renderer .image-caption {
     background-color: white;
     padding: 12px;
 }
-.dm5-cytoscape-renderer .dm5-detail-layer .dmx-images-file-renderer .details {
+.dmx-cytoscape-renderer .dmx-detail-layer .dmx-images-file-renderer .details {
     display: none;
 }
 </style>

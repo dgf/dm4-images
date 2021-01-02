@@ -150,33 +150,6 @@ public class ImagePlugin extends PluginActivator implements ImageService {
     }
 
     /**
-     * Returns a set of all image source URLs.
-     * Todo: Deprecated
-     * @return all image sources
-     */
-    @GET
-    @Path("/browse")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<Image> browse() {
-        String imagesFolderPath = getImagesDirectoryInFileRepo();
-        try {
-            ArrayList<Image> images = new ArrayList<Image>();
-            DirectoryListing imagesDirectory = files.getDirectoryListing(imagesFolderPath);
-            for (FileItem image : imagesDirectory.getFileItems()) {
-                log.info("  Include image in repository with name \"" + image.getName() + "\"");
-                String src = getRepoUri(image.getPath());
-                images.add(new Image(src, image.getMediaType(), image.getSize(), image.getName()));
-            }
-            return images;
-        } catch (WebApplicationException e) { // fileService.getDirectoryListing
-            log.info("Calling for a DirectoryListing has THROWN an Error");
-            throw e; // do not wrap it again
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
      * Constructs path to the "images" folder, either in a workspace or in a global file repository.
      * @return String   Repository path for storing images.
      */
@@ -202,18 +175,6 @@ public class ImagePlugin extends PluginActivator implements ImageService {
             throw new RuntimeException(e);
         }
         return folderPath;
-    }
-
-    /**
-     * Returns an external accessible file repository URI of path based on the
-     * <code>dmx.host.url</code> platform configuration option.
-     * 
-     * @param path
-     *            Relative path of a file repository resource.
-     * @return URI
-     */
-    private String getRepoUri(String path) {
-        return DM4_HOST_URL + FILEREPO_BASE_URI_NAME + "/" + JavaUtils.encodeURIComponent(path);
     }
 
 }

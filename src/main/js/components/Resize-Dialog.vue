@@ -28,7 +28,7 @@
   export default {
     inject: {
       http: 'axios',
-      dm5: 'dm5'
+      dmx: 'dmx'
     },
     data () {
         return {
@@ -100,10 +100,12 @@
     },
     methods: {
       confirmResize() {
-        console.log("[Images] Resize Parameter", this.widthOption, this.resizeMode, "Image File", this.file.value)
         this.http.post('/images/resize/' + this.file.id + '/' + this.widthOption + '/' + this.resizeMode)
         .then(response => {
-            this.$store.dispatch("revealRelatedTopic", {relTopic: new this.dm5.RelatedTopic(response.data), noSelect: false})
+            this.$store.dispatch("revealRelatedTopic", {
+                relTopic: new this.dmx.RelatedTopic(response.data),
+                noSelect: false
+            })
             this.$notify({
               title: 'Image Resized', type: 'success'
             })

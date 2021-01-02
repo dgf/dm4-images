@@ -1,4 +1,4 @@
-export default ({dm5, store, axios: http, Vue}) => ({
+export default ({dmx, store, axios: http, Vue}) => ({
 
   init () {
     store.dispatch("registerUploadHandler", {

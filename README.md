@@ -8,9 +8,13 @@ For uploading image files this plugin relies and extends the [dmx-upload-dialog]
 
 ## Requirements
 
-  * [DMX](http://github.com/jri/deepamehta), 5.0
+  * [DMX Platform](https://github.com/dmx-systems/dmx-platform), 5.1
 
 ## Release Notes
+
+**1.2.0** -- Jan 02, 2021
+
+* Compatible with DMX 5.1 API
 
 **1.1.0** -- Aug 15, 2020
 
@@ -43,5 +47,5 @@ Since 0.9.8 (14 June 2016) this bundle integrates the [imgscalr library](https:/
 
 ## Authors
 
-Malte Reißig, (C) 2013-2020<br/>
+Malte Reißig, (C) 2013-2021<br/>
 Danny Graf, (C) 2012-2013

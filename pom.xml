@@ -7,24 +7,20 @@
     <name>DMX Images</name>
     <groupId>systems.dmx</groupId>
     <artifactId>dmx-images</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <packaging>bundle</packaging>
 
     <parent>
         <groupId>systems.dmx</groupId>
         <artifactId>dmx-plugin</artifactId>
-        <version>5.0</version>
+        <version>5.1</version>
     </parent>
-
-    <!--properties>
-        <dmx.deploy.dir>C:\cygwin64\home\MRG\source\dmx-platform\bundle-deploy</dmx.deploy.dir>
-    </properties-->
 
     <dependencies>
         <dependency>
             <groupId>systems.dmx</groupId>
             <artifactId>dmx-files</artifactId>
-            <version>5.0</version>
+            <version>5.1</version>
         </dependency>
     	<!-- http://mvnrepository.com/artifact/org.imgscalr/imgscalr-lib -->
     	<dependency>
