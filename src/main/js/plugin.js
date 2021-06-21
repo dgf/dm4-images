@@ -1,7 +1,6 @@
 export default ({dmx, store, axios: http, Vue}) => ({
 
   init () {
-    console.log("Images plugin init...")
     store.dispatch("upload/registerUploadHandler", {
       mimeTypes: ["image/png", "image/jpg", "image/jpeg"],
       action: "/images/upload",
