@@ -1,7 +1,8 @@
 export default ({dmx, store, axios: http, Vue}) => ({
 
   init () {
-    store.dispatch("registerUploadHandler", {
+    console.log("Images plugin init...")
+    store.dispatch("upload/registerUploadHandler", {
       mimeTypes: ["image/png", "image/jpg", "image/jpeg"],
       action: "/images/upload",
       selected: function(file, fileList) {
@@ -12,20 +13,16 @@ export default ({dmx, store, axios: http, Vue}) => ({
         this.$notify({
           title: 'Image Uploaded', type: 'success'
         })
-        this.$store.dispatch("closeUploadDialog")
+        this.$store.dispatch("upload/closeUploadDialog")
       },
       error: function(error, file, fileList) {
         console.log("[Images] file upload error", error)
         this.$notify.error({
           title: 'Image File Upload Failed', message: 'Error: ' + JSON.stringify(error)
         })
-        this.$store.dispatch("closeUploadDialog")
+        this.$store.dispatch("upload/closeUploadDialog")
       }
     })
-  },
-  
-  objectRenderers: {
-    'dmx.files.file': require('./components/dmx-images-file-renderer').default
   },
   
   components: [{
